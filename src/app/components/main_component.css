@@ -1,0 +1,32 @@
+.upload-container {
+  border: 2px dashed #ccc;
+  padding: 30px;
+  width: 400px;
+  margin: 50px auto;
+  text-align: center;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.heading {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+input[type="file"] {
+  margin-bottom: 15px;
+}
+
+button {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #125ea5;
+}
