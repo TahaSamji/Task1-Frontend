@@ -1,13 +1,24 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class BlobService {
-  constructor() {}
+   private readonly apiUrl = 'http://localhost:5206/api/azure/get-sasURL';
+
+  constructor(private http: HttpClient) {}
 
   async uploadFileInChunks(file: File, fileId: string): Promise<void> {
     const chunkSize = 5 * 1024 * 1024; // 5 MB
     const totalChunks = Math.ceil(file.size / chunkSize);
+
+    // Step 1: Get the SAS URL
+    const sasUrl = await this.getSasUrl(file.name);
+
+    if (!sasUrl) {
+      throw new Error('SAS URL not received');
+    }
+    console.log(sasUrl);
 
     for (let i = 0; i < totalChunks; i++) {
       const start = i * chunkSize;
@@ -16,20 +27,9 @@ export class BlobService {
 
       try {
  
-        // const sasUrl = await this.http
-        //   .get<string>(`/api/sas-url?fileId=${fileId}&chunkIndex=${i}`)
-        //   .toPromise();
-
         
-        // await fetch(sasUrl!, {
-        //   method: 'PUT',
-        //   headers: {
-        //     'x-ms-blob-type': 'BlockBlob'
-        //   },
-        //   body: chunk
-        // });
-
-        // console.log(`✅ Uploaded chunk ${i + 1} / ${totalChunks}`);
+        
+       
         console.log(chunk);
       } catch (err) {
         console.error(`❌ Failed to upload chunk ${i + 1}`, err);
@@ -39,4 +39,16 @@ export class BlobService {
 
     console.log('🎉 All chunks uploaded successfully.');
   }
+
+  private getSasUrl(fileName: string): Promise<string> {
+    const params = new HttpParams()
+      .set('fileName', fileName)
+      .set('contentType', 'video/mp4');
+
+    return firstValueFrom(
+      this.http.get(this.apiUrl, { params, responseType: 'text' })
+    );
+  }
+
+  
 }
