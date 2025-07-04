@@ -1,0 +1,12 @@
+<!-- features/auth/signup/signup.component.html -->
+<div class="auth-container">
+  <h2>Sign Up</h2>
+  <form  (ngSubmit)="onSubmit()">
+    <input type="text" placeholder="Name" formControlName="name" />
+    <input type="email" placeholder="Email" formControlName="email" />
+    <input type="password" placeholder="Password" formControlName="password" />
+    <button type="submit" >Sign Up</button>
+  </form>
+
+  <a href="auth/login">Already have an account? Login</a>
+</div>

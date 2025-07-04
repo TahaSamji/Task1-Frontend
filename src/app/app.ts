@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { UploadComponent } from "./components/main";
-// templateUrl: './app.html',
+
 @Component({
   selector: 'app-root',
-  imports: [ UploadComponent],
-  template: '   <app-upload />',
-  
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `<router-outlet></router-outlet>`,
 })
 export class App {
   protected title = 'myapp-front';
