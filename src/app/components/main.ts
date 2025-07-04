@@ -22,8 +22,12 @@ export class UploadComponent {
   async onUpload(): Promise<void> {
     if (this.selectedFile) {
       console.log('Uploading:', await this.selectedFile.arrayBuffer());
+      const fileId = `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      console.log(`Starting upload with fileId: ${fileId}`);
 
-      this.blobService.uploadFileInChunks(this.selectedFile,"1");
+
+      this.blobService.uploadFileInChunks(this.selectedFile);
       
     } else {
       alert('Please select a file first.');
