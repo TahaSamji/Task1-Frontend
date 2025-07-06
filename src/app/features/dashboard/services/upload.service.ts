@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BlobService } from './blob-service';
-import { StorageService } from './storage-service';
+import { BlobService } from '../../../core/services/blob.service';
+import { StorageService } from '../../../core/services/storage.service';
 
 
 @Injectable({ providedIn: 'root' })
@@ -33,7 +33,7 @@ export class UploadService {
     }
 
     if (uploaded.size === totalChunks) {
-      await this.blobUpload.requestMerge(fileId, totalChunks, file.name);
+      await this.blobUpload.requestMerge(fileId, totalChunks, file.name,file.size,1);
       this.storageService.clear(fileId);
       console.log('🎉 File uploaded & merged!');
     } else {

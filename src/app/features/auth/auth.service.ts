@@ -9,7 +9,7 @@ interface AuthResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'https://yourapi.com/api/auth';
+  private apiUrl = 'http://localhost:5206/api/auth';
 
   constructor(private http: HttpClient) {}
 
@@ -17,7 +17,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { email, password });
   }
 
-  signup(name: string, email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, { name, email, password });
+  signup(username: string, email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, { username, email, password });
   }
 }

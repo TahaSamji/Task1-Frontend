@@ -1,10 +1,13 @@
 <!-- features/auth/login/login.component.html -->
 <div class="auth-container">
   <h2>Login</h2>
-  <form  >
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <input type="email" placeholder="Email" formControlName="email" />
     <input type="password" placeholder="Password" formControlName="password" />
-   <button (ngSubmit)="onSubmit()" type="submit" >Login</button>
+    <button type="submit">Login</button>
   </form>
-  <a href="auth/signup">Don't have an account? Sign up</a>
+
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <a [routerLink]="['/auth/signup']">Don't have an account? Sign up</a>
 </div>
