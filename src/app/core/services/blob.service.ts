@@ -26,31 +26,63 @@ export class BlobService {
       headers
     }));
   }
+// blob.service.ts
+async uploadBlock(sasUrl: string, blockId: string, chunk: Blob): Promise<void> {
+  const url = `${sasUrl}&comp=block&blockid=${encodeURIComponent(blockId)}`;
+  const result = await fetch(url, {
+    method: 'PUT',
+    headers: { 'x-ms-blob-type': 'BlockBlob' },
+    body: chunk
+  });
 
-  async uploadChunk(sasUrl: string, chunk: Blob): Promise<void> {
-    // Don't attach auth headers here — SAS URLs are already authenticated!
-    const result = await fetch(sasUrl, {
-      method: 'PUT',
-      headers: { 'x-ms-blob-type': 'BlockBlob' },
-      body: chunk
-    });
-
-    if (!result.ok) {
-      throw new Error(`❌ Upload failed: ${result.statusText}`);
-    }
+  if (!result.ok) {
+    throw new Error(`❌ Block upload failed: ${result.statusText}`);
   }
+}
 
-  async requestMerge(fileId: string, totalChunks: number, outputFileName: string,fileSize: number,  EncodingId : number): Promise<void> {
-    const headers = this.getAuthHeaders();
+async commitBlockList(sasUrl: string, blockIds: string[]): Promise<void> {
+  const url = `${sasUrl}&comp=blocklist`;
+  const xmlBody = `<?xml version="1.0" encoding="utf-8"?><BlockList>${blockIds
+    .map(id => `<Latest>${id}</Latest>`)
+    .join('')}</BlockList>`;
 
-    await firstValueFrom(this.http.post(this.mergeApiUrl, {
-      fileId,
-      totalChunks,
-      outputFileName,
-      fileSize,
-      EncodingId
-    }, { headers }));
+  const result = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'x-ms-blob-content-type': 'video/mp4',
+      'Content-Type': 'application/xml'
+    },
+    body: xmlBody
+  });
+
+  if (!result.ok) {
+    throw new Error(`❌ Commit block list failed: ${result.statusText}`);
   }
+}
+  // async uploadChunk(sasUrl: string, chunk: Blob): Promise<void> {
+  //   // Don't attach auth headers here — SAS URLs are already authenticated!
+  //   const result = await fetch(sasUrl, {
+  //     method: 'PUT',
+  //     headers: { 'x-ms-blob-type': 'BlockBlob' },
+  //     body: chunk
+  //   });
+
+  //   if (!result.ok) {
+  //     throw new Error(`❌ Upload failed: ${result.statusText}`);
+  //   }
+  // }
+
+  // async requestMerge(fileId: string, totalChunks: number, outputFileName: string,fileSize: number,  EncodingId : number): Promise<void> {
+  //   const headers = this.getAuthHeaders();
+
+  //   await firstValueFrom(this.http.post(this.mergeApiUrl, {
+  //     fileId,
+  //     totalChunks,
+  //     outputFileName,
+  //     fileSize,
+  //     EncodingId
+  //   }, { headers }));
+  // }
 
   getChunkSize(): number {
     return this.CHUNK_SIZE;
