@@ -1,0 +1,215 @@
+<!-- encoding-profile-modal.component.html -->
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Create Encoding Profile</h2>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+
+    <form [formGroup]="encodingForm" (ngSubmit)="onSubmit()" class="modal-body">
+      <!-- Profile Name Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3>Profile Information</h3>
+        </div>
+        <div class="form-group">
+          <label for="profileName">Profile Name</label>
+          <input 
+            type="text" 
+            id="profileName" 
+            formControlName="name"
+            placeholder="e.g., 4K Ultra HD, Mobile Optimized"
+            class="form-control"
+          />
+          <div class="error-message" *ngIf="encodingForm.get('name')?.invalid && encodingForm.get('name')?.touched">
+            Profile name is required
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Configuration Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3>Video Configuration</h3>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="resolution">Resolution</label>
+            <select id="resolution" formControlName="resolution" class="form-control">
+              <option value="">Select Resolution</option>
+              <option value="3840x2160">4K (3840x2160)</option>
+              <option value="2560x1440">2K (2560x1440)</option>
+              <option value="1920x1080">Full HD (1920x1080)</option>
+              <option value="1280x720">HD (1280x720)</option>
+              <option value="854x480">SD (854x480)</option>
+              <option value="640x360">360p (640x360)</option>
+              <option value="426x240">240p (426x240)</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div class="form-group" *ngIf="encodingForm.get('resolution')?.value === 'custom'">
+            <label for="customResolution">Custom Resolution</label>
+            <input 
+              type="text" 
+              id="customResolution" 
+              formControlName="customResolution"
+              placeholder="e.g., 1600x900"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bitrate">Video Bitrate</label>
+            <select id="bitrate" formControlName="bitrate" class="form-control">
+              <option value="">Select Bitrate</option>
+              <option value="25000k">25 Mbps (4K Premium)</option>
+              <option value="15000k">15 Mbps (4K Standard)</option>
+              <option value="8000k">8 Mbps (1080p High)</option>
+              <option value="5000k">5 Mbps (1080p Standard)</option>
+              <option value="3000k">3 Mbps (720p High)</option>
+              <option value="2000k">2 Mbps (720p Standard)</option>
+              <option value="1000k">1 Mbps (480p)</option>
+              <option value="500k">500 Kbps (360p)</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div class="form-group" *ngIf="encodingForm.get('bitrate')?.value === 'custom'">
+            <label for="customBitrate">Custom Bitrate</label>
+            <input 
+              type="text" 
+              id="customBitrate" 
+              formControlName="customBitrate"
+              placeholder="e.g., 3500k"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="formatType">Output Format</label>
+          <select id="formatType" formControlName="formatType" class="form-control">
+            <option value="">Select Format</option>
+            <option value="hls">HLS (HTTP Live Streaming)</option>
+            <option value="dash">MPEG-DASH</option>
+            <option value="cmaf">CMAF (Common Media Application Format)</option>
+            <option value="mp4">MP4 (Progressive)</option>
+            <option value="webm">WebM</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Advanced FFmpeg Configuration Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3>Advanced Configuration</h3>
+          <button type="button" class="toggle-btn" (click)="toggleAdvanced()">
+            {{ showAdvanced ? 'Hide' : 'Show' }} Advanced Options
+          </button>
+        </div>
+
+        <div class="advanced-section" [class.expanded]="showAdvanced">
+          <div class="form-group">
+            <label for="preset">Encoding Preset</label>
+            <select id="preset" formControlName="preset" class="form-control">
+              <option value="ultrafast">Ultra Fast (lowest quality)</option>
+              <option value="superfast">Super Fast</option>
+              <option value="veryfast">Very Fast</option>
+              <option value="faster">Faster</option>
+              <option value="fast">Fast</option>
+              <option value="medium" selected>Medium (balanced)</option>
+              <option value="slow">Slow</option>
+              <option value="slower">Slower</option>
+              <option value="veryslow">Very Slow (highest quality)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="codec">Video Codec</label>
+            <select id="codec" formControlName="codec" class="form-control">
+              <option value="libx264">H.264 (libx264)</option>
+              <option value="libx265">H.265/HEVC (libx265)</option>
+              <option value="libvpx-vp9">VP9 (libvpx-vp9)</option>
+              <option value="libaom-av1">AV1 (libaom-av1)</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="crf">Quality (CRF)</label>
+              <input 
+                type="range" 
+                id="crf" 
+                formControlName="crf"
+                min="0" 
+                max="51" 
+                step="1"
+                class="range-slider"
+              />
+              <span class="range-value">{{ encodingForm.get('crf')?.value }}</span>
+              <small class="help-text">Lower values = higher quality (18-28 recommended)</small>
+            </div>
+
+            <div class="form-group">
+              <label for="framerate">Frame Rate</label>
+              <select id="framerate" formControlName="framerate" class="form-control">
+                <option value="23.976">23.976 fps (Film)</option>
+                <option value="24">24 fps</option>
+                <option value="25">25 fps (PAL)</option>
+                <option value="29.97">29.97 fps (NTSC)</option>
+                <option value="30">30 fps</option>
+                <option value="50">50 fps</option>
+                <option value="59.94">59.94 fps</option>
+                <option value="60">60 fps</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="enableHardwareAccel">
+              <span class="checkmark"></span>
+              Enable Hardware Acceleration
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="enableDRM">
+              <span class="checkmark"></span>
+              Enable CENC Encryption
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="generateThumbnails">
+              <span class="checkmark"></span>
+              Generate Thumbnails
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="customFFmpegArgs">Custom FFmpeg Arguments</label>
+            <textarea 
+              id="customFFmpegArgs" 
+              formControlName="customFFmpegArgs"
+              placeholder="Additional FFmpeg arguments (e.g., -movflags +faststart -profile:v main)"
+              class="form-control textarea"
+              rows="3"
+            ></textarea>
+            <small class="help-text">Advanced users only. These arguments will be appended to the generated command.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="encodingForm.invalid">
+          Create Profile
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

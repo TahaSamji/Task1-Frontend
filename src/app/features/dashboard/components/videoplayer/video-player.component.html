@@ -1,41 +1,9 @@
-<div class="video-container">
-  <video #video class="video-player" controls="false" muted autoplay>
-    Your browser does not support the video tag.
-  </video>
-  
-  <div class="controls">
-    <button class="control-btn" (click)="togglePlay()">
-      {{ isPlaying ? '⏸️' : '▶️' }}
-    </button>
-    
-    <span class="time">{{ formatTime(currentTime) }}</span>
-    
-    <input 
-      type="range" 
-      class="seek-bar" 
-      [value]="currentTime" 
-      [max]="duration" 
-      (input)="seek($event)"
-    >
-    
-    <span class="time">{{ formatTime(duration) }}</span>
-    
-    <button class="control-btn" (click)="toggleMute()">
-      {{ isMuted ? '🔇' : '🔊' }}
-    </button>
-    
-    <input 
-      type="range" 
-      class="volume-bar" 
-      [value]="volume" 
-      min="0" 
-      max="1" 
-      step="0.1"
-      (input)="setVolume($event)"
-    >
-    
-    <button class="control-btn fullscreen-btn" (click)="toggleFullscreen()">
-      ⛶
-    </button>
+<section id="video-section" class="video-section">
+<div class="video-wrapper">
+  <div class="video-container">
+    <video #video class="video-player" controls="true" muted autoplay>
+      Your browser does not support the video tag.
+    </video>
   </div>
 </div>
+</section>

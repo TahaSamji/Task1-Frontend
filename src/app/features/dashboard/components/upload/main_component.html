@@ -1,13 +1,23 @@
 <app-appbar></app-appbar>
 <div class="base">
-  <div class="upload-container">
-    <h2 class="heading">Upload Video</h2>
+  <!-- Video Player Section - First Thing User Sees -->
+   <app-video-player></app-video-player>
 
-    <input type="file" (change)="onFileSelected($event)" />
 
-    <button (click)="onUpload()">Upload</button>
-  </div>
-  <app-encodings-list></app-encodings-list>
-  <app-video-player></app-video-player>
+  <!-- Upload Section - Below Video Player -->
+  <section id="upload-section" class="upload-section">
+    <div class="upload-container">
+      <h2 class="heading">Upload Video</h2>
+      <input type="file" (change)="onFileSelected($event)" />
+      <button (click)="onUpload()">Upload</button>
+    </div>
+  </section>
 
+  <!-- Contact Section -->
+  <section id="contact-section" class="contact-section">
+    <div class="contact-container">
+      <h2 class="heading">Contact Us</h2>
+      <p>Get in touch with our team for support or feedback.</p>
+    </div>
+  </section>
 </div>

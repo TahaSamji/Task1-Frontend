@@ -1,14 +1,26 @@
+<!-- AppBar Template -->
 <nav class="appbar">
   <div class="logo">🌟 Video Transcoder</div>
-
+   <button class="btn btn-primary" (click)="openModal()">
+  Create New Encoding Profile
+</button>
+  
   <div class="nav-icons">
-    <button (click)="scrollTo('home')">Home</button>
-    <button (click)="scrollTo('about')">About</button>
-    <button (click)="scrollTo('contact')">Contact</button>
+    <button (click)="scrollTo('video-section')">Home</button>
+    <button (click)="scrollTo('upload-section')">Upload</button>
+    <button (click)="scrollTo('contact-section')">Contact</button>
   </div>
-
+  
   <div class="spacer"></div>
-   <div class="logout-container">
+ 
+<app-encoding-profile-modal
+  *ngIf="showModal"
+  (modalClosed)="onModalClosed()"
+  (profileCreated)="onProfileCreated($event)">
+</app-encoding-profile-modal>
+<div class="spacer"></div>
+
+  <div class="logout-container">
     <button class="logout-btn" (click)="logout()">Logout</button>
-  </div> <!-- Empty div to balance the logo -->
+  </div>
 </nav>
