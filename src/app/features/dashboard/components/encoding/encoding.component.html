@@ -41,4 +41,11 @@
       </tr>
     </tbody>
   </table>
+   <div *ngIf="selectedVideoUrl" style="margin-top: 20px;">
+    <h4>Preview:</h4>
+    <video #videoPlayer controls width="640" height="360"></video>
+  </div>
 </div>
+
+
+

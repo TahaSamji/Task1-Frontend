@@ -3,13 +3,14 @@ import { UploadService } from '../../services/upload.service';
 import { RouterModule } from '@angular/router';
 import { AppbarComponent } from '../../../../shared/appbar/appbar.component';
 import { EncodingComponent } from "../encoding/encoding.component";
+import { VideoPlayerComponent } from "../videoplayer/video-player.component";
 
 @Component({
   selector: 'app-upload',
    standalone: true,
   templateUrl: './main_component.html',
   styleUrls: ['./main_component.css'],
-  imports: [RouterModule, AppbarComponent, EncodingComponent]
+  imports: [RouterModule, AppbarComponent, EncodingComponent, VideoPlayerComponent]
 })
 export class UploadComponent {
   selectedFile: File | null = null;

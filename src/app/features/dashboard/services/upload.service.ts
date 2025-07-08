@@ -13,11 +13,11 @@ export class UploadService {
   async upload(file: File): Promise<void> {
     const chunkSize = this.blobService.getChunkSize();
     const totalChunks = Math.ceil(file.size / chunkSize);
-    const fileId = `${file.name}`;
+    const fileId = `${file.name }-${file.size}`;
     const uploaded = new Set(this.storageService.load(fileId));
     const blockIds: string[] = [];
 
-    const sasUrl = await this.blobService.getSasUrl(fileId);
+    const sasUrl = await this.blobService.getSasUrl(file.name);
 
     for (let i = 0; i < totalChunks; i++) {
       const blockId = btoa(`block-${String(i).padStart(6, '0')}`);
@@ -37,8 +37,10 @@ export class UploadService {
 
     if (uploaded.size === totalChunks) {
       await this.blobService.commitBlockList(sasUrl, blockIds);
+      const thumbnailUrl = await this.blobService.mergeCompleteAndRequestThumbnail(totalChunks,file.name,file.size,1,);
       this.storageService.clear(fileId);
-      console.log('🎉 File uploaded & committed via block list!');
+      console.log(thumbnailUrl);
+      console.log('🎉 File uploaded & committed via block list! :',{thumbnailUrl});
     } else {
       console.log('⏸️ Partial upload completed, resuming later.');
     }

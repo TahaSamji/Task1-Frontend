@@ -4,8 +4,7 @@ import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class BlobService {
-  private readonly sasApiUrl = 'http://localhost:5206/api/azure/sas-url';
-  private readonly mergeApiUrl = 'http://localhost:5206/api/video/mergeChunks';
+  private readonly baseUrl = 'http://localhost:5206/api';
   private readonly CHUNK_SIZE = 4 * 1024 * 1024;
 
   constructor(private http: HttpClient) {}
@@ -18,7 +17,7 @@ export class BlobService {
   }
 
   getSasUrl(blobName: string): Promise<string> {
-    const url = `${this.sasApiUrl}?fileName=${encodeURIComponent(blobName)}`;
+    const url = `${this.baseUrl}/azure/sas-url?fileName=${encodeURIComponent(blobName)}`;
     const headers = this.getAuthHeaders();
 
     return firstValueFrom(this.http.get(url, {
@@ -39,7 +38,11 @@ async uploadBlock(sasUrl: string, blockId: string, chunk: Blob): Promise<void> {
     throw new Error(`❌ Block upload failed: ${result.statusText}`);
   }
 }
-
+// <BlockList>
+//    <Latest>YmxvY2stMDAx</Latest>
+//    <Latest>YmxvY2stMDAy</Latest>
+//    <Latest>YmxvY2stMDAz</Latest>
+// </BlockList>
 async commitBlockList(sasUrl: string, blockIds: string[]): Promise<void> {
   const url = `${sasUrl}&comp=blocklist`;
   const xmlBody = `<?xml version="1.0" encoding="utf-8"?><BlockList>${blockIds
@@ -72,18 +75,25 @@ async commitBlockList(sasUrl: string, blockIds: string[]): Promise<void> {
   //   }
   // }
 
-  // async requestMerge(fileId: string, totalChunks: number, outputFileName: string,fileSize: number,  EncodingId : number): Promise<void> {
-  //   const headers = this.getAuthHeaders();
+  async mergeCompleteAndRequestThumbnail(
+  totalChunks: number,
+  outputFileName: string,
+  fileSize: number,
+  EncodingId: number
+): Promise<string> {
+  const headers = this.getAuthHeaders();
 
-  //   await firstValueFrom(this.http.post(this.mergeApiUrl, {
-  //     fileId,
-  //     totalChunks,
-  //     outputFileName,
-  //     fileSize,
-  //     EncodingId
-  //   }, { headers }));
-  // }
+  const response = await firstValueFrom(
+    this.http.post<{ thumbnailUrl: string }>(`${this.baseUrl}/video/mergeComplete`, {
+      totalChunks,
+      outputFileName,
+      fileSize,
+      EncodingId
+    }, { headers })
+  );
 
+  return response.thumbnailUrl;
+}
   getChunkSize(): number {
     return this.CHUNK_SIZE;
   }
