@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { BlobService } from '../../../core/services/blob.service';
 import { StorageService } from '../../../core/services/storage.service';
+import { Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class UploadService {
@@ -9,6 +10,10 @@ export class UploadService {
     private blobService: BlobService,
     private storageService: StorageService
   ) {}
+
+    private thumbnailSubject = new Subject<string>();
+  thumbnail$ = this.thumbnailSubject.asObservable(); // ⬅️ Component can subscribe to this
+
 
   async upload(file: File): Promise<void> {
     const chunkSize = this.blobService.getChunkSize();
@@ -37,9 +42,11 @@ export class UploadService {
 
     if (uploaded.size === totalChunks) {
       await this.blobService.commitBlockList(sasUrl, blockIds);
+      console.log('🎉 File uploaded & committed via block list! :');
       const thumbnailUrl = await this.blobService.mergeCompleteAndRequestThumbnail(totalChunks,file.name,file.size,1,);
       this.storageService.clear(fileId);
-      console.log(thumbnailUrl);
+      
+       this.thumbnailSubject.next(thumbnailUrl);
       console.log('🎉 File uploaded & committed via block list! :',{thumbnailUrl});
     } else {
       console.log('⏸️ Partial upload completed, resuming later.');

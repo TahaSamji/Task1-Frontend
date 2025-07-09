@@ -1,9 +1,10 @@
+<!-- video-player.component.html -->
 <section id="video-section" class="video-section">
-<div class="video-wrapper">
-  <div class="video-container">
-    <video #video class="video-player" controls="true" muted autoplay>
-      Your browser does not support the video tag.
-    </video>
+  <div id="video-wrapper" class="video-wrapper">
+    <div id="video-container" class="video-container">
+      <video #video class="video-player" controls muted autoplay [poster]="thumbnailUrl">
+        Your browser does not support the video tag.
+      </video>
+    </div>
   </div>
-</div>
 </section>

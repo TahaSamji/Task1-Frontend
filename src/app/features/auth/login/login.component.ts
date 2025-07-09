@@ -35,7 +35,8 @@ export class LoginComponent {
 
     this.authService.login(email, password).subscribe({
       next: (res) => {
-        localStorage.setItem('token', res.token); // ✅ Save JWT
+        this.authService.setToken(res.token);
+        // localStorage.setItem('token', res.token); // ✅ Save JWT
         this.router.navigate(['/dashboard']);      // ✅ Navigate to dashboard
       },
       error: (err) => {

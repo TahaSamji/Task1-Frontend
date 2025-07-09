@@ -1,21 +1,14 @@
 // encoding-profile-modal.component.ts
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { EncodingProfile, EncodingService } from '../services/encodings.service';
 
-interface EncodingProfile {
-  id?: number;
-  name: string;
-  ffmpeg_args: string;
-  resolution: string;
-  bitrate: string;
-  format_type: string;
-  created_at?: string;
-}
 
 @Component({
   selector: 'app-encoding-profile-modal',
   standalone: true, 
-  imports : [ReactiveFormsModule],
+  imports : [ReactiveFormsModule,CommonModule],
   templateUrl: './encodingprofilemodal.component.html',
   styleUrls: ['./encodingprofilemodal.component.css']
 })
@@ -26,7 +19,7 @@ export class EncodingProfileModalComponent implements OnInit {
   encodingForm: FormGroup;
   showAdvanced: boolean = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder,private encodingService: EncodingService) {
     this.encodingForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       resolution: ['', Validators.required],
@@ -81,7 +74,7 @@ export class EncodingProfileModalComponent implements OnInit {
     let args: string[] = [];
 
     // Input handling
-    args.push('-i input.mp4');
+    // args.push('-i input.mp4');
 
     // Video codec
     args.push(`-c:v ${formValue.codec}`);
@@ -168,64 +161,96 @@ export class EncodingProfileModalComponent implements OnInit {
     }
 
     // Output
-    args.push('output.%ext%');
+    // args.push('output.%ext%');
 
     return args.join(' ');
   }
 
+  // onSubmit(): void {
+  //   if (this.encodingForm.valid) {
+  //     const formValue = this.encodingForm.value;
+      
+  //     // Create the encoding profile object
+  //     const encodingProfile: EncodingProfile = {
+  //       name: formValue.name,
+  //       resolution: formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution,
+  //       bitrate: formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate,
+  //       format_type: formValue.formatType,
+  //       ffmpeg_args: this.generateFFmpegArgs(),
+  //       created_at: new Date().toISOString()
+  //     };
+
+  //     // Console log the created profile
+  //     console.log('=== ENCODING PROFILE CREATED ===');
+  //     console.log('Profile Object:', encodingProfile);
+  //     console.log('');
+  //     console.log('Generated FFmpeg Command:');
+  //     console.log(encodingProfile.ffmpeg_args);
+  //     console.log('');
+  //     console.log('Profile Configuration:');
+  //     console.log(`Name: ${encodingProfile.name}`);
+  //     console.log(`Resolution: ${encodingProfile.resolution}`);
+  //     console.log(`Bitrate: ${encodingProfile.bitrate}`);
+  //     console.log(`Format: ${encodingProfile.format_type}`);
+  //     console.log('');
+  //     console.log('Advanced Settings:');
+  //     console.log(`Codec: ${formValue.codec}`);
+  //     console.log(`Preset: ${formValue.preset}`);
+  //     console.log(`CRF: ${formValue.crf}`);
+  //     console.log(`Frame Rate: ${formValue.framerate}`);
+  //     console.log(`Hardware Acceleration: ${formValue.enableHardwareAccel}`);
+  //     console.log(`DRM/CENC Encryption: ${formValue.enableDRM}`);
+  //     console.log(`Generate Thumbnails: ${formValue.generateThumbnails}`);
+      
+  //     if (formValue.customFFmpegArgs) {
+  //       console.log(`Custom Args: ${formValue.customFFmpegArgs}`);
+  //     }
+  //     console.log('================================');
+
+  //     // Emit the profile for parent component
+  //     this.profileCreated.emit(encodingProfile);
+      
+  //     // Close modal
+  //     this.closeModal();
+  //   } else {
+  //     // Mark all fields as touched to show validation errors
+  //     Object.keys(this.encodingForm.controls).forEach(key => {
+  //       this.encodingForm.get(key)?.markAsTouched();
+  //     });
+  //   }
+  // }
+
   onSubmit(): void {
-    if (this.encodingForm.valid) {
-      const formValue = this.encodingForm.value;
-      
-      // Create the encoding profile object
-      const encodingProfile: EncodingProfile = {
-        name: formValue.name,
-        resolution: formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution,
-        bitrate: formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate,
-        format_type: formValue.formatType,
-        ffmpeg_args: this.generateFFmpegArgs(),
-        created_at: new Date().toISOString()
-      };
+  if (this.encodingForm.valid) {
+    const formValue = this.encodingForm.value;
 
-      // Console log the created profile
-      console.log('=== ENCODING PROFILE CREATED ===');
-      console.log('Profile Object:', encodingProfile);
-      console.log('');
-      console.log('Generated FFmpeg Command:');
-      console.log(encodingProfile.ffmpeg_args);
-      console.log('');
-      console.log('Profile Configuration:');
-      console.log(`Name: ${encodingProfile.name}`);
-      console.log(`Resolution: ${encodingProfile.resolution}`);
-      console.log(`Bitrate: ${encodingProfile.bitrate}`);
-      console.log(`Format: ${encodingProfile.format_type}`);
-      console.log('');
-      console.log('Advanced Settings:');
-      console.log(`Codec: ${formValue.codec}`);
-      console.log(`Preset: ${formValue.preset}`);
-      console.log(`CRF: ${formValue.crf}`);
-      console.log(`Frame Rate: ${formValue.framerate}`);
-      console.log(`Hardware Acceleration: ${formValue.enableHardwareAccel}`);
-      console.log(`DRM/CENC Encryption: ${formValue.enableDRM}`);
-      console.log(`Generate Thumbnails: ${formValue.generateThumbnails}`);
-      
-      if (formValue.customFFmpegArgs) {
-        console.log(`Custom Args: ${formValue.customFFmpegArgs}`);
+    const encodingProfile: EncodingProfile = {
+      name: formValue.name,
+      resolution: formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution,
+      bitrate: formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate,
+      format_type: formValue.formatType,
+      ffmpeg_args: this.generateFFmpegArgs(),
+      created_at: new Date().toISOString()
+    };
+
+    // Send to backend
+    this.encodingService.addEncodingProfile(encodingProfile).subscribe({
+      next: (response) => {
+        console.log('Encoding profile successfully saved:', response);
+        this.profileCreated.emit(response);
+        this.closeModal();
+      },
+      error: (error) => {
+        console.error('Failed to save encoding profile:', error);
       }
-      console.log('================================');
-
-      // Emit the profile for parent component
-      this.profileCreated.emit(encodingProfile);
-      
-      // Close modal
-      this.closeModal();
-    } else {
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.encodingForm.controls).forEach(key => {
-        this.encodingForm.get(key)?.markAsTouched();
-      });
-    }
+    });
+  } else {
+    Object.keys(this.encodingForm.controls).forEach(key => {
+      this.encodingForm.get(key)?.markAsTouched();
+    });
   }
+}
+
 
   // Helper method to get form control errors
   getFieldError(fieldName: string): string | null {

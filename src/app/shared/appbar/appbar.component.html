@@ -1,12 +1,10 @@
 <!-- AppBar Template -->
-<nav class="appbar">
+<nav id="appbar" class="appbar">
   <div class="logo">🌟 Video Transcoder</div>
-   <button class="btn btn-primary" (click)="openModal()">
-  Create New Encoding Profile
-</button>
+  
   
   <div class="nav-icons">
-    <button (click)="scrollTo('video-section')">Home</button>
+    <button (click)="scrollTo('video-container')">Home</button>
     <button (click)="scrollTo('upload-section')">Upload</button>
     <button (click)="scrollTo('contact-section')">Contact</button>
   </div>
@@ -19,6 +17,9 @@
   (profileCreated)="onProfileCreated($event)">
 </app-encoding-profile-modal>
 <div class="spacer"></div>
+ <button *hasRole="'Admin'" class="custom-encoding-button" (click)="openModal()">
+   Add Encoding +
+</button>
 
   <div class="logout-container">
     <button class="logout-btn" (click)="logout()">Logout</button>
