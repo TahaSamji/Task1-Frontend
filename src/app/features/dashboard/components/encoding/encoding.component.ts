@@ -2,11 +2,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { EncodingProfile, EncodingService } from '../../../admin/services/encodings.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-encoding-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './encoding.component.html',
   styleUrls: ['./encoding.component.css']
 })
@@ -21,7 +22,11 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(private encodingService: EncodingService) {}
+selectedProfileId: number | null = null;
 
+onProfileSelected(profileId: number): void {
+  console.log("✅ Selected Profile ID:", profileId);
+}
   ngOnInit(): void {
     this.fetchEncodings();
   }
@@ -65,6 +70,7 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
     if (this.canGoToNextPage()) {
       this.page++;
       this.fetchEncodings();
+      this.loading = false;
     }
   }
 
@@ -75,6 +81,7 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
     if (this.canGoToPreviousPage()) {
       this.page--;
       this.fetchEncodings();
+      this.loading = false;
     }
   }
 

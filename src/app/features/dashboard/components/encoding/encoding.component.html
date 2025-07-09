@@ -32,15 +32,18 @@
           </th>
           <th>
             <div class="header-content">
-              <span>Created</span>
+              <span>Select</span>
             </div>
+          </th>
+
+          <th>
+
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let profile of encodings; let i = index" 
-            class="table-row" 
-            [style.animation-delay]="(i * 100) + 'ms'">
+        <tr *ngFor="let profile of encodings; let i = index" class="table-row"
+          [style.animation-delay]="(i * 100) + 'ms'">
           <td>
             <div class="cell-content">
               <span class="profile-name">{{ profile.name }}</span>
@@ -62,9 +65,8 @@
             </div>
           </td>
           <td>
-            <div class="cell-content">
-              <span class="date-text">{{ profile.created_at | date:'short' }}</span>
-            </div>
+            <input type="radio" name="selectedProfile" [value]="profile.id" [(ngModel)]="selectedProfileId"
+              (change)="onProfileSelected(profile.id!)" />
           </td>
         </tr>
       </tbody>
@@ -78,24 +80,17 @@
   </div>
 
   <div class="pagination-controls" *ngIf="total > pageSize">
-    <button 
-      class="pagination-btn" 
-      (click)="prevPage()" 
-      [disabled]="page === 1"
-      [class.disabled]="page === 1">
+    <button class="pagination-btn" (click)="prevPage()" [disabled]="page === 1" [class.disabled]="page === 1">
       <span>← Previous</span>
     </button>
-    
+
     <div class="page-info">
       <span class="page-current">{{ page }}</span>
       <span class="page-divider">of</span>
       <span class="page-total">{{ getTotalPages() }}</span>
     </div>
-    
-    <button 
-      class="pagination-btn" 
-      (click)="nextPage()" 
-      [disabled]="page * pageSize >= total"
+
+    <button class="pagination-btn" (click)="nextPage()" [disabled]="page * pageSize >= total"
       [class.disabled]="page * pageSize >= total">
       <span>Next →</span>
     </button>
