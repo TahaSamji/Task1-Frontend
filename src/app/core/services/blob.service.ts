@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class BlobService {
   private readonly baseUrl = 'http://localhost:5206/api';
-  private readonly CHUNK_SIZE = 4 * 1024 * 1024;
+  private readonly CHUNK_SIZE = 5 * 1024 * 1024;
 
   constructor(private http: HttpClient) {}
 
@@ -17,7 +17,7 @@ export class BlobService {
   }
 
   getSasUrl(blobName: string): Promise<string> {
-    const url = `${this.baseUrl}/azure/sas-url?fileName=${encodeURIComponent(blobName)}`;
+    const url = `${this.baseUrl}/cloudstorage/sas-url?fileName=${encodeURIComponent(blobName)}`;
     const headers = this.getAuthHeaders();
 
     return firstValueFrom(this.http.get(url, {

@@ -65,6 +65,16 @@ export class AuthService {
     return decoded.role;
   }
 
+  getUserId(): string | null {
+    const token = this.getToken();
+
+    if (!token) return null;
+
+    const decoded = jwtDecode<JwtPayload>(token);
+    console.log(decoded);
+    return decoded.sub;
+  }
+
   getUsername(): string | null {
     const token = this.getToken();
     if (!token) return null;
