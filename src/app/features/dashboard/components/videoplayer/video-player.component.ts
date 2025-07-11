@@ -28,10 +28,10 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     const video = this.video.nativeElement;
 
     // 👉 Choose HLS or DASH here
-    const hlsUrl = 'https://task1storageaccount.blob.core.windows.net/uploads/263305_medium.mp4/hls/playlist.m3u8';
-    const dashUrl = 'https://task1storageaccount.blob.core.windowsnet/uploads/myvid.mp4/dash/manifest.mpd';
+    const hlsUrl = 'https://task1storageaccount.blob.core.windows.net/uploads/1/ocean.mp4_1_3/hls/playlist.m3u8';
+    const dashUrl = 'https://task1storageaccount.blob.core.windows.net/uploads/1/myvid.mp4_2_2/dash/manifest.mpd';
 
-    const useDash = true; // 👈 toggle this based on your logic (e.g., based on profile or file extension)
+    const useDash = false; // 👈 toggle this based on your logic (e.g., based on profile or file extension)
 
     if (useDash) {
       // MPEG-DASH playback

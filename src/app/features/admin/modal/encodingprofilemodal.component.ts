@@ -69,102 +69,173 @@ export class EncodingProfileModalComponent implements OnInit {
     this.modalClosed.emit();
   }
 
+  // private generateFFmpegArgs(): string {
+  //   const formValue = this.encodingForm.value;
+  //   let args: string[] = [];
+
+  //   // Input handling
+  //   // args.push('-i input.mp4');
+
+  //   // Video codec
+  //   args.push(`-c:v ${formValue.codec}`);
+
+  //   // Resolution
+  //   const resolution = formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution;
+  //   if (resolution) {
+  //     args.push(`-s ${resolution}`);
+  //   }
+
+  //   // Bitrate
+  //   const bitrate = formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate;
+  //   if (bitrate) {
+  //     args.push(`-b:v ${bitrate}`);
+  //   }
+
+  //   // Frame rate
+  //   if (formValue.framerate) {
+  //     args.push(`-r ${formValue.framerate}`);
+  //   }
+
+  //   // CRF (Constant Rate Factor)
+  //   if (formValue.crf) {
+  //     args.push(`-crf ${formValue.crf}`);
+  //   }
+
+  //   // Preset
+  //   if (formValue.preset) {
+  //     args.push(`-preset ${formValue.preset}`);
+  //   }
+
+  //   // Hardware acceleration
+  //   if (formValue.enableHardwareAccel) {
+  //     args.push('-hwaccel auto');
+  //   }
+
+  //   // Format-specific arguments
+  //   switch (formValue.formatType) {
+  //     case 'hls':
+  //       args.push('-f hls');
+  //       args.push('-hls_time 10');
+  //       args.push('-hls_playlist_type vod');
+  //       if (formValue.enableDRM) {
+  //         args.push('-hls_key_info_file keyinfo.txt');
+  //       }
+  //       break;
+  //     case 'dash':
+  //       args.push('-f dash');
+  //       args.push('-seg_duration 10');
+  //       if (formValue.enableDRM) {
+  //         args.push('-encryption_scheme cenc-aes-ctr');
+  //       }
+  //       break;
+  //     case 'cmaf':
+  //       args.push('-f mp4');
+  //       args.push('-movflags cmaf+dash+delay_moov');
+  //       if (formValue.enableDRM) {
+  //         args.push('-encryption_scheme cenc-aes-ctr');
+  //       }
+  //       break;
+  //     case 'mp4':
+  //       args.push('-f mp4');
+  //       args.push('-movflags +faststart');
+  //       break;
+  //     case 'webm':
+  //       args.push('-f webm');
+  //       break;
+  //   }
+
+  //   // Audio codec (default)
+  //   args.push('-c:a aac');
+  //   args.push('-b:a 128k');
+
+  //   // Thumbnails
+  //   if (formValue.generateThumbnails) {
+  //     args.push('-vf "thumbnail,scale=320:180"');
+  //     args.push('-frames:v 1');
+  //     args.push('thumbnail.jpg');
+  //   }
+
+  //   // Custom FFmpeg arguments
+  //   if (formValue.customFFmpegArgs && formValue.customFFmpegArgs.trim()) {
+  //     args.push(formValue.customFFmpegArgs.trim());
+  //   }
+
+  //   // Output
+  //   // args.push('output.%ext%');
+
+  //   return args.join(' ');
+  // }
   private generateFFmpegArgs(): string {
-    const formValue = this.encodingForm.value;
-    let args: string[] = [];
+  const formValue = this.encodingForm.value;
+  const args: string[] = [];
 
-    // Input handling
-    // args.push('-i input.mp4');
+  // Codec & resolution
+  args.push(`-c:v ${formValue.codec}`);
+  const resolution = formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution;
+  if (resolution) args.push(`-s ${resolution}`);
 
-    // Video codec
-    args.push(`-c:v ${formValue.codec}`);
+  // Bitrate
+  const bitrate = formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate;
+  if (bitrate) args.push(`-b:v ${bitrate}`);
 
-    // Resolution
-    const resolution = formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution;
-    if (resolution) {
-      args.push(`-s ${resolution}`);
-    }
+  // CRF, preset, framerate
+  args.push(`-crf ${formValue.crf}`);
+  args.push(`-preset ${formValue.preset}`);
+  args.push(`-r ${formValue.framerate}`);
 
-    // Bitrate
-    const bitrate = formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate;
-    if (bitrate) {
-      args.push(`-b:v ${bitrate}`);
-    }
+  // GOP settings for consistent segmenting (CMAF requirement)
+  const fps = parseFloat(formValue.framerate);
+  const gop = Math.round(fps * 4); // 4s segment duration
+  args.push(`-g ${gop}`);
+  args.push(`-keyint_min ${gop}`);
+  args.push(`-sc_threshold 0`);
 
-    // Frame rate
-    if (formValue.framerate) {
-      args.push(`-r ${formValue.framerate}`);
-    }
-
-    // CRF (Constant Rate Factor)
-    if (formValue.crf) {
-      args.push(`-crf ${formValue.crf}`);
-    }
-
-    // Preset
-    if (formValue.preset) {
-      args.push(`-preset ${formValue.preset}`);
-    }
-
-    // Hardware acceleration
-    if (formValue.enableHardwareAccel) {
-      args.push('-hwaccel auto');
-    }
-
-    // Format-specific arguments
-    switch (formValue.formatType) {
-      case 'hls':
-        args.push('-f hls');
-        args.push('-hls_time 10');
-        args.push('-hls_playlist_type vod');
-        if (formValue.enableDRM) {
-          args.push('-hls_key_info_file keyinfo.txt');
-        }
-        break;
-      case 'dash':
-        args.push('-f dash');
-        args.push('-seg_duration 10');
-        if (formValue.enableDRM) {
-          args.push('-encryption_scheme cenc-aes-ctr');
-        }
-        break;
-      case 'cmaf':
-        args.push('-f mp4');
-        args.push('-movflags cmaf+dash+delay_moov');
-        if (formValue.enableDRM) {
-          args.push('-encryption_scheme cenc-aes-ctr');
-        }
-        break;
-      case 'mp4':
-        args.push('-f mp4');
-        args.push('-movflags +faststart');
-        break;
-      case 'webm':
-        args.push('-f webm');
-        break;
-    }
-
-    // Audio codec (default)
-    args.push('-c:a aac');
-    args.push('-b:a 128k');
-
-    // Thumbnails
-    if (formValue.generateThumbnails) {
-      args.push('-vf "thumbnail,scale=320:180"');
-      args.push('-frames:v 1');
-      args.push('thumbnail.jpg');
-    }
-
-    // Custom FFmpeg arguments
-    if (formValue.customFFmpegArgs && formValue.customFFmpegArgs.trim()) {
-      args.push(formValue.customFFmpegArgs.trim());
-    }
-
-    // Output
-    // args.push('output.%ext%');
-
-    return args.join(' ');
+  // Hardware Acceleration
+  if (formValue.enableHardwareAccel) {
+    args.push('-hwaccel auto');
   }
+
+  // Audio
+  args.push('-c:a aac');
+  args.push('-b:a 128k');
+
+  // Format-specific CMAF output
+  if (formValue.formatType === 'hls') {
+    args.push('-f hls');
+    args.push('-hls_time 4');
+    args.push('-hls_segment_type fmp4');
+    args.push('-hls_playlist_type vod');
+  } else if (formValue.formatType === 'dash') {
+    args.push('-f dash');
+    args.push('-seg_duration 4');
+    args.push('-use_template 1 -use_timeline 1');
+    args.push('-init_seg_name init-$RepresentationID$.mp4');
+    args.push('-media_seg_name chunk-$RepresentationID$-$Number$.m4s');
+    args.push('-adaptation_sets "id=0,streams=v id=1,streams=a"');
+  }
+
+  // DRM (CENC)
+  if (formValue.enableDRM) {
+    args.push('-encryption_scheme cenc-aes-ctr');
+    args.push('-encryption_key 0123456789abcdef0123456789abcdef');
+    args.push('-encryption_kid abcdef0123456789abcdef0123456789');
+  }
+
+  // Thumbnails (optional, but not part of CMAF spec)
+  if (formValue.generateThumbnails) {
+    args.push('-vf "thumbnail,scale=320:180"');
+    args.push('-frames:v 1');
+    args.push('thumbnail.jpg');
+  }
+
+  // Custom args
+  if (formValue.customFFmpegArgs?.trim()) {
+    args.push(formValue.customFFmpegArgs.trim());
+  }
+
+  return args.join(' ');
+}
+
 
   // onSubmit(): void {
   //   if (this.encodingForm.valid) {

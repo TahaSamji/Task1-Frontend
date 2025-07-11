@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { EncodingProfile, EncodingService } from '../../../admin/services/encodings.service';
 import { FormsModule } from '@angular/forms';
+import { EncodingStateService } from '../../services/encoding-state.service';
 
 @Component({
   selector: 'app-encoding-table',
@@ -18,15 +19,17 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
   pageSize = 5;
   loading = false;
   error: string | null = null;
-  
+
   private destroy$ = new Subject<void>();
 
-  constructor(private encodingService: EncodingService) {}
-selectedProfileId: number | null = null;
+  constructor(private encodingService: EncodingService,private encodingState: EncodingStateService) { }
+  selectedProfileId: number | null = null;
 
-onProfileSelected(profileId: number): void {
-  console.log("✅ Selected Profile ID:", profileId);
-}
+  onProfileSelected(profileId: number) {
+    console.log("✅ Selected Profile ID:", profileId);
+    this.encodingState.setSelectedProfileId(profileId);
+  }
+
   ngOnInit(): void {
     this.fetchEncodings();
   }
@@ -42,7 +45,7 @@ onProfileSelected(profileId: number): void {
   fetchEncodings(): void {
     this.loading = true;
     this.error = null;
-    
+
     this.encodingService
       .getAllEncodingProfiles(this.page, this.pageSize)
       .pipe(

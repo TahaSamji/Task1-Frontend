@@ -3,22 +3,31 @@ import { Injectable } from '@angular/core';
 import { BlobService } from '../../../core/services/blob.service';
 import { StorageService } from '../../../core/services/storage.service';
 import { Subject } from 'rxjs';
+import { EncodingStateService } from './encoding-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class UploadService {
   constructor(
     private blobService: BlobService,
-    private storageService: StorageService
-  ) {}
+    private storageService: StorageService,
+    private encodingState: EncodingStateService
+  ) { }
 
-    private thumbnailSubject = new Subject<string>();
+  private thumbnailSubject = new Subject<string>();
   thumbnail$ = this.thumbnailSubject.asObservable(); // ⬅️ Component can subscribe to this
 
-
-  async upload(file: File): Promise<void> {
+  async onFileSelected(file: File) {
+    const profileId = this.encodingState.getSelectedProfileId();
+    if (profileId == null) {
+      alert('Please select an encoding profile first.');
+      return;
+    }
+    await this.upload(file, profileId);
+  }
+  async upload(file: File, EncodingProfileID : number): Promise<void> {
     const chunkSize = this.blobService.getChunkSize();
     const totalChunks = Math.ceil(file.size / chunkSize);
-    const fileId = `${file.name }-${file.size}`;
+    const fileId = `${file.name}-${file.size}`;
     const uploaded = new Set(this.storageService.load(fileId));
     const blockIds: string[] = [];
 
@@ -43,11 +52,12 @@ export class UploadService {
     if (uploaded.size === totalChunks) {
       await this.blobService.commitBlockList(sasUrl, blockIds);
       console.log('🎉 File uploaded & committed via block list! :');
-      const thumbnailUrl = await this.blobService.mergeCompleteAndRequestThumbnail(totalChunks,file.name,file.size,1,);
+      console.log("profileID:", EncodingProfileID);
+      const thumbnailUrl = await this.blobService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, EncodingProfileID);
       this.storageService.clear(fileId);
-      
-       this.thumbnailSubject.next(thumbnailUrl);
-      console.log('🎉 File uploaded & committed via block list! :',{thumbnailUrl});
+
+      this.thumbnailSubject.next(thumbnailUrl);
+      console.log('🎉 File uploaded & committed via block list! :', { thumbnailUrl });
     } else {
       console.log('⏸️ Partial upload completed, resuming later.');
     }

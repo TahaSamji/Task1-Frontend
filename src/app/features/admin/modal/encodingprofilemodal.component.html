@@ -91,14 +91,11 @@
         </div>
 
         <div class="form-group">
-          <label for="formatType">Output Format</label>
+          <label for="formatType">Output CMAF Format</label>
           <select id="formatType" formControlName="formatType" class="form-control">
             <option value="">Select Format</option>
             <option value="hls">HLS (HTTP Live Streaming)</option>
             <option value="dash">MPEG-DASH</option>
-            <option value="cmaf">CMAF (Common Media Application Format)</option>
-            <option value="mp4">MP4 (Progressive)</option>
-            <option value="webm">WebM</option>
           </select>
         </div>
       </div>
@@ -133,8 +130,6 @@
             <select id="codec" formControlName="codec" class="form-control">
               <option value="libx264">H.264 (libx264)</option>
               <option value="libx265">H.265/HEVC (libx265)</option>
-              <option value="libvpx-vp9">VP9 (libvpx-vp9)</option>
-              <option value="libaom-av1">AV1 (libaom-av1)</option>
             </select>
           </div>
 

@@ -27,7 +27,7 @@ export class UploadComponent {
 
   async onUpload(): Promise<void> {
     if (this.selectedFile) {
-      this.uploadService.upload(this.selectedFile);
+      this.uploadService.onFileSelected(this.selectedFile);
       
     } else {
       alert('Please select a file first.');
