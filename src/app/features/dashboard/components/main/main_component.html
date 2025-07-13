@@ -1,0 +1,35 @@
+<app-appbar></app-appbar>
+<div class="base">
+  <!-- Video Player Section - First Thing User Sees -->
+   <app-video-player></app-video-player>
+   <app-video-rendition-selector></app-video-rendition-selector>
+
+ <!-- Contact Section -->
+  <section id="my-upload-section" class="my-upload-section">
+    <app-user-uploads></app-user-uploads>
+  </section>
+
+  <section id="upload-section" class="upload-section">
+    <!-- Flex row: Upload + Table side by side -->
+    <div class="upload-row">
+      <div class="upload-container">
+        <h2 class="heading">Upload Video</h2>
+        <input type="file" (change)="onFileSelected($event)" />
+        <button (click)="onUpload()">Upload</button>
+      </div>
+
+      <div class="encoding-container">
+        <app-encoding-table></app-encoding-table>
+      </div>
+    </div>
+
+    <!-- Progress Bar below the row -->
+    <div class="upload-progress-wrapper">
+      <app-upload-progress></app-upload-progress>
+    </div>
+  </section>
+
+  <section id="my-resumableuploads-section" class="my-resumableuploads-section">
+    <app-resumable-uploads></app-resumable-uploads>
+  </section>
+</div>

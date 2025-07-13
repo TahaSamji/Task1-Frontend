@@ -1,0 +1,49 @@
+<!-- Modal Overlay -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <!-- Modal Container -->
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2>Select Thumbnail</h2>
+      <button class="close-button" (click)="closeModal()">
+        <span>&times;</span>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <div class="loading-spinner" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Loading thumbnails...</p>
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <p>{{ errorMessage }}</p>
+        <button (click)="loadThumbnails()" class="retry-button">Retry</button>
+      </div>
+
+      <div class="thumbnails-grid" *ngIf="!isLoading && !errorMessage && thumbnails.length > 0">
+        <div 
+          *ngFor="let thumbnail of thumbnails; let i = index" 
+          class="thumbnail-card"
+          [class.default-thumbnail]="thumbnail.isDefault"
+          (click)="onThumbnailClick(thumbnail.id)"
+        >
+          <img 
+            [src]="thumbnail.blobUrl" 
+            [alt]="'Thumbnail ' + (i + 1)"
+            class="thumbnail-image"
+          />
+          <div class="thumbnail-info">
+            <span class="time-offset">{{ thumbnail.timeOffset }}</span>
+            <span *ngIf="thumbnail.isDefault" class="default-badge">Default</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-thumbnails" *ngIf="!isLoading && !errorMessage && thumbnails.length === 0">
+        <p>No thumbnails available</p>
+      </div>
+    </div>
+  </div>
+</div>

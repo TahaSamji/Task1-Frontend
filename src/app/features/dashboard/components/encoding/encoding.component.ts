@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { EncodingProfile, EncodingService } from '../../../admin/services/encodings.service';
@@ -22,7 +22,7 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private encodingService: EncodingService,private encodingState: EncodingStateService) { }
+  constructor(private encodingService: EncodingService,  private cdRef: ChangeDetectorRef,private encodingState: EncodingStateService) { }
   selectedProfileId: number | null = null;
 
   onProfileSelected(profileId: number) {
@@ -56,6 +56,9 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.encodings = res.items || [];
           this.total = res.total || 0;
+          this.loading = false;
+          this.cdRef.detectChanges();
+          
         },
         error: (error) => {
           console.error('Failed to load encoding profiles:', error);
@@ -73,7 +76,7 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
     if (this.canGoToNextPage()) {
       this.page++;
       this.fetchEncodings();
-      this.loading = false;
+     
     }
   }
 
@@ -84,7 +87,7 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
     if (this.canGoToPreviousPage()) {
       this.page--;
       this.fetchEncodings();
-      this.loading = false;
+      
     }
   }
 

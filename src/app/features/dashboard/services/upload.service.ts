@@ -4,17 +4,29 @@ import { BlobService } from '../../../core/services/blob.service';
 import { StorageService } from '../../../core/services/storage.service';
 import { Subject } from 'rxjs';
 import { EncodingStateService } from './encoding-state.service';
+import { UploadProgressStateService } from './progress-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class UploadService {
   constructor(
     private blobService: BlobService,
     private storageService: StorageService,
-    private encodingState: EncodingStateService
+    private encodingState: EncodingStateService,
+    private uploadProgressState:UploadProgressStateService
   ) { }
 
   private thumbnailSubject = new Subject<string>();
-  thumbnail$ = this.thumbnailSubject.asObservable(); // ⬅️ Component can subscribe to this
+  thumbnail$ = this.thumbnailSubject.asObservable();
+
+
+  async onResumeUpload(file: File, encodingProfileId: number) {
+
+    if (encodingProfileId == null) {
+      alert('Please select an encoding profile first.');
+      return;
+    }
+    await this.upload(file, encodingProfileId);
+  }
 
   async onFileSelected(file: File) {
     const profileId = this.encodingState.getSelectedProfileId();
@@ -24,7 +36,8 @@ export class UploadService {
     }
     await this.upload(file, profileId);
   }
-  async upload(file: File, EncodingProfileID : number): Promise<void> {
+
+  async upload(file: File, EncodingProfileID: number): Promise<void> {
     const chunkSize = this.blobService.getChunkSize();
     const totalChunks = Math.ceil(file.size / chunkSize);
     const fileId = `${file.name}-${file.size}`;
@@ -45,8 +58,12 @@ export class UploadService {
       const chunk = file.slice(i * chunkSize, Math.min(file.size, (i + 1) * chunkSize));
       await this.blobService.uploadBlock(sasUrl, blockId, chunk);
       uploaded.add(i);
-      this.storageService.save(fileId, Array.from(uploaded));
+
+      this.storageService.save(fileId, Array.from(uploaded), EncodingProfileID);
       console.log(`✅ Uploaded chunk ${i + 1}/${totalChunks}`);
+      
+      const progressPercent = Math.floor((uploaded.size / totalChunks) * 100);
+      this.uploadProgressState.setProgressState( fileId, progressPercent );
     }
 
     if (uploaded.size === totalChunks) {

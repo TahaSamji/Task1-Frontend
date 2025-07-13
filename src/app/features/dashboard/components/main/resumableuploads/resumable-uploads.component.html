@@ -1,0 +1,27 @@
+<div class="resumable-container">
+  <h2>📂 Resumable Uploads</h2>
+  <div *ngIf="uploads.length === 0" class="empty">No uploads found in progress.</div>
+  
+  <table *ngIf="uploads.length > 0">
+    <thead>
+      <tr>
+        <th>File ID</th>
+        <th>Encoding Profile ID</th>
+        <th>Uploaded Chunks</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let upload of uploads">
+        <td>{{ upload.fileId }}</td>
+        <td>{{ upload.encodingProfileId }}</td>
+        <td>{{ upload.uploadedChunks.length }}</td>
+        <td>
+           <input type="file" (change)="onFileSelected($event)" />
+            <button (click)="resumeUpload(upload.fileId, upload.encodingProfileId)">Resume</button>
+          <button class="clear" (click)="clearProgress(upload.fileId)">🗑 Clear</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

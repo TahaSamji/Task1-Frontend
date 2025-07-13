@@ -1,0 +1,81 @@
+<div class="video-rendition-selector">
+  <div class="header">
+    <h3>Select Video Quality</h3>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading video qualities...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-container">
+    <p class="error-message">{{ error }}</p>
+    
+  </div>
+
+  <!-- Video Variants Table -->
+  <div *ngIf="!loading && !error && videoVariants.length > 0" class="table-container">
+    <table class="variants-table">
+      <thead>
+        <tr>
+          <th>Select</th>
+          <th>Quality</th>
+          <th>Resolution</th>
+          <th>Bitrate</th>
+          <th>File Size</th>
+          <th>Duration</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let variant of videoVariants" 
+            [class.selected]="selectedVariantId === variant.variantId"
+            (click)="onVariantSelect(variant.variantId)">
+          <td>
+            <input 
+              type="radio" 
+              name="videoVariant" 
+              [value]="variant.variantId"
+              [checked]="selectedVariantId === variant.variantId"
+              (change)="onVariantSelect(variant.variantId)">
+          </td>
+          <td class="quality-cell">
+            <div class="quality-info">
+              <span class="resolution">{{ variant.resolution }}</span>
+              <span class="bitrate">{{ variant.bitrateKbps }} kbps</span>
+            </div>
+          </td>
+          <td>{{ variant.resolution }}</td>
+          <td>{{ variant.bitrateKbps }} kbps</td>
+          <td>{{ formatFileSize(variant.size) }}</td>
+          <td>{{ formatDuration(variant.durationSeconds) }}</td>
+          <td>
+            <span class="type-badge">{{ variant.type }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No Variants Message -->
+  <div *ngIf="!loading && !error && videoVariants.length === 0" class="no-variants">
+    <p>No video qualities available for this video.</p>
+  </div>
+
+  <!-- Action Buttons -->
+  <div *ngIf="!loading && !error && videoVariants.length > 0" class="actions">
+    <button 
+      class="confirm-btn" 
+      (click)="onConfirm()"
+      [disabled]="!selectedVariantId">
+      Confirm Selection
+    </button>
+    <button 
+      class="cancel-btn" 
+      (click)="selectedVariantId = null">
+      Clear Selection
+    </button>
+  </div>
+</div>

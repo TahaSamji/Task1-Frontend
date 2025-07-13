@@ -214,19 +214,19 @@ export class EncodingProfileModalComponent implements OnInit {
     args.push('-adaptation_sets "id=0,streams=v id=1,streams=a"');
   }
 
-  // DRM (CENC)
-  if (formValue.enableDRM) {
-    args.push('-encryption_scheme cenc-aes-ctr');
-    args.push('-encryption_key 0123456789abcdef0123456789abcdef');
-    args.push('-encryption_kid abcdef0123456789abcdef0123456789');
-  }
+  // // DRM (CENC)
+  // if (formValue.enableDRM) {
+  //   args.push('-encryption_scheme cenc-aes-ctr');
+  //   args.push('-encryption_key 0123456789abcdef0123456789abcdef');
+  //   args.push('-encryption_kid abcdef0123456789abcdef0123456789');
+  // }
 
-  // Thumbnails (optional, but not part of CMAF spec)
-  if (formValue.generateThumbnails) {
-    args.push('-vf "thumbnail,scale=320:180"');
-    args.push('-frames:v 1');
-    args.push('thumbnail.jpg');
-  }
+  // // Thumbnails (optional, but not part of CMAF spec)
+  // if (formValue.generateThumbnails) {
+  //   args.push('-vf "thumbnail,scale=320:180"');
+  //   args.push('-frames:v 1');
+  //   args.push('thumbnail.jpg');
+  // }
 
   // Custom args
   if (formValue.customFFmpegArgs?.trim()) {

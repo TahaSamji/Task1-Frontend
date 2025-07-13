@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { EncodingProfileModalComponent } from "../../features/admin/modal/encodingprofilemodal.component";
@@ -12,13 +12,20 @@ import { HasRoleDirective } from '../../directives/has-role';
   styleUrls: ['./appbar.component.css']
 })
 export class AppbarComponent {
+  //  @Output() myUploadsClicked = new EventEmitter<void>(); 
     showModal = false;
-  constructor(private router: Router) {}
+
+  constructor(private router: Router,private cdRef: ChangeDetectorRef) {}
   scrollTo(sectionId: string) {
     const section = document.getElementById(sectionId);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  onMyUploadsClick() {
+    // this.myUploadsClicked.emit(); // 🔥 Emit event to parent
+    this.scrollTo('my-upload-section');
   }
 
     openModal() {
@@ -33,6 +40,7 @@ export class AppbarComponent {
    onProfileCreated(profile: any) {
     console.log('Profile created in parent:', profile);
     this.showModal = false;
+    this.cdRef.detectChanges();
     // You can now store, display, or send this profile to the backend
   }
 

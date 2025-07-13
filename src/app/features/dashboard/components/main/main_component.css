@@ -12,20 +12,32 @@ body, html {
   background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
 }
 
-/* Upload Section */
+/* Upload Section - Modified for side-by-side layout */
 .upload-section {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  gap: 2rem;
 }
 
+/* Container for upload and encoding table in a row */
+.upload-row {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  align-items: flex-start;
+}
+
+/* Individual containers */
 .upload-container {
   border: 2px dashed #ff6b6b;
   padding: 40px;
-  width: 100%;
-  max-width: 500px;
+  flex: 1;
   text-align: center;
   border-radius: 12px;
   background-color: rgba(255, 255, 255, 0.9);
@@ -33,17 +45,38 @@ body, html {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* Contact Section */
-.contact-section {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
- 
+.encoding-container {
+  flex: 1;
+  padding: 40px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.contact-container {
+/* Progress bar wrapper - full width below the row */
+.upload-progress-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Contact Section */
+.my-upload-section {
+  padding: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 200px;
+}
+
+.my-upload-section-container {
   padding: 40px;
   width: 100%;
   max-width: 600px;
@@ -61,7 +94,7 @@ body, html {
   font-weight: 700;
 }
 
-.contact-container p {
+.my-upload-section-container p {
   font-size: 1.2rem;
   color: #666;
   line-height: 1.6;
@@ -91,13 +124,23 @@ button:hover {
   background-color: #125ea5;
 }
 
-
 /* Mobile responsive */
 @media (max-width: 768px) {
   .video-section,
   .upload-section,
-  .contact-section {
+  .my-upload-section {
     padding: 1rem;
+  }
+  
+  /* Stack vertically on mobile */
+  .upload-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .upload-container,
+  .encoding-container {
+    padding: 20px;
   }
   
   .video-wrapper {
@@ -105,7 +148,7 @@ button:hover {
   }
   
   .upload-container,
-  .contact-container {
+  .my-upload-section-container {
     padding: 20px;
   }
   

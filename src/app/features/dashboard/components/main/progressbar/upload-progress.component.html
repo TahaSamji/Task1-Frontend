@@ -1,0 +1,9 @@
+<div *ngIf="uploads.length > 0">
+  <div *ngFor="let upload of uploads" class="upload-row">
+    <div class="file-name">{{ upload.fileId }}</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" [style.width.%]="upload.progress"></div>
+    </div>
+    <div class="progress-text">{{ upload.progress }}%</div>
+  </div>
+</div>

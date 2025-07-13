@@ -15,14 +15,40 @@ export class StorageService {
     }
   }
 
-  save(fileId: string, uploadedChunks: number[]): void {
+  save(fileId: string, uploadedChunks: number[],encodingProfileId:number): void {
     localStorage.setItem(this.getKey(fileId), JSON.stringify({
       uploadedChunks,
+      encodingProfileId,
       timestamp: new Date().toISOString()
     }));
   }
+  
 
   clear(fileId: string): void {
     localStorage.removeItem(this.getKey(fileId));
   }
+
+  getAllUploadProgresses(): { fileId: string; encodingProfileId: number }[] {
+  const progresses: { fileId: string; encodingProfileId: number }[] = [];
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('uploadProgress_')) {
+      const fileId = key.replace('uploadProgress_', '');
+      try {
+        const data = JSON.parse(localStorage.getItem(key)!);
+        if (data?.encodingProfileId != null) {
+          progresses.push({
+            fileId,
+            encodingProfileId: data.encodingProfileId
+          });
+        }
+      } catch (e) {
+        console.warn(`⚠️ Failed to parse localStorage item for key: ${key}`, e);
+      }
+    }
+  }
+
+  return progresses;
+}
 }
