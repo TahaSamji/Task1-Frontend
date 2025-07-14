@@ -3,7 +3,7 @@ import { UserService, VideoMetaData } from '../../../../core/services/user.servi
 import { CommonModule } from '@angular/common';
 import { RenditionService } from '../../services/renditions-state.service';
 import { ThumbnailModalStateService } from '../../services/thumbnail-modal-state.service';
-import { ThumbnailModalComponent } from "./videothumbnails/thumbnail-modal.component";
+import { ThumbnailModalComponent } from './videothumbnails/thumbnail-modal.component';
 
 @Component({
     selector: 'app-user-uploads',

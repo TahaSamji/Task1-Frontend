@@ -26,7 +26,6 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
-    const video = this.video.nativeElement;
 
     this.renditionService.getthumbnailUrlObservable().subscribe(url => {
       this.thumbnailUrl = url;

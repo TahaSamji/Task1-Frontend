@@ -28,6 +28,7 @@ export class StorageService {
     localStorage.removeItem(this.getKey(fileId));
   }
 
+
   getAllUploadProgresses(): { fileId: string; encodingProfileId: number }[] {
   const progresses: { fileId: string; encodingProfileId: number }[] = [];
 

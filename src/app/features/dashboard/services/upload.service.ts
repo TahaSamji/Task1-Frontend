@@ -70,8 +70,9 @@ export class UploadService {
       await this.blobService.commitBlockList(sasUrl, blockIds);
       console.log('🎉 File uploaded & committed via block list! :');
       console.log("profileID:", EncodingProfileID);
-      const thumbnailUrl = await this.blobService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, EncodingProfileID);
       this.storageService.clear(fileId);
+      const thumbnailUrl = await this.blobService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, EncodingProfileID);
+      
 
       this.thumbnailSubject.next(thumbnailUrl);
       console.log('🎉 File uploaded & committed via block list! :', { thumbnailUrl });
