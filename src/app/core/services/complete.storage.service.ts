@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 
 interface UploadedFileInfo {
-  fileId: string;
+  fileName: string;
+  totalChunks : number,
+  size : number,
+  isCompleted : boolean
 }
 
 @Injectable({ providedIn: 'root' })
@@ -13,16 +16,27 @@ export class CompletedStorageService {
   }
 
   // Save upload progress
-  saveCompletedUpload(fileId: string): void {
+  saveCompletedUpload(fileName: string,totalChunks : number,size : number,isCompleted:boolean): void {
     const data: UploadedFileInfo = {
-      fileId,
+      fileName,
+      totalChunks,
+      size,
+      isCompleted
     };
-    localStorage.setItem(this.getKey(fileId), JSON.stringify(data));
+    localStorage.setItem(this.getKey(fileName), JSON.stringify(data));
   }
 
+  updateCompletionStatus(fileName: string, isCompleted: boolean): void {
+  const existing = this.loadCompletedUpload(fileName);
+  if (existing) {
+    existing.isCompleted = isCompleted;
+    localStorage.setItem(this.getKey(fileName), JSON.stringify(existing));
+  }
+}
+
   // Load a specific upload
-  loadCompletedUpload(fileId: string): UploadedFileInfo | null {
-    const raw = localStorage.getItem(this.getKey(fileId));
+  loadCompletedUpload(fileName: string): UploadedFileInfo | null {
+    const raw = localStorage.getItem(this.getKey(fileName));
     try {
       return raw ? JSON.parse(raw) as UploadedFileInfo : null;
     } catch {
@@ -48,8 +62,8 @@ export class CompletedStorageService {
   }
 
   // Clear a specific upload
-  clear(fileId: string): void {
-    localStorage.removeItem(this.getKey(fileId));
+  clear(fileName: string): void {
+    localStorage.removeItem(this.getKey(fileName));
   }
 
   // Clear all uploads (optional)

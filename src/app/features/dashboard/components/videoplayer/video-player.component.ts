@@ -98,7 +98,8 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
         this.hls.loadSource(this.videoPlayBackUrl);
         this.hls.attachMedia(video);
         this.hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      } 
+      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = this.videoPlayBackUrl;
         video.addEventListener('loadedmetadata', () => video.play());
       } else {

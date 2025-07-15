@@ -5,6 +5,7 @@ import { StorageService } from '../../../core/services/storage.service';
 import { Subject } from 'rxjs';
 import { EncodingStateService } from './encoding-state.service';
 import { UploadProgressStateService } from './progress-state.service';
+import { CompletedStorageService } from '../../../core/services/complete.storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class UploadService {
@@ -12,7 +13,8 @@ export class UploadService {
     private blobService: BlobService,
     private storageService: StorageService,
     private encodingState: EncodingStateService,
-    private uploadProgressState:UploadProgressStateService
+    private uploadProgressState:UploadProgressStateService,
+     private completedStorageService: CompletedStorageService 
   ) { }
 
   private thumbnailSubject = new Subject<string>();
@@ -43,7 +45,6 @@ export class UploadService {
     const fileId = `${file.name}-${file.size}`;
     const uploaded = new Set(this.storageService.load(fileId));
     const blockIds: string[] = [];
-
     const sasUrl = await this.blobService.getSasUrl(file.name);
 
     for (let i = 0; i < totalChunks; i++) {
@@ -71,6 +72,9 @@ export class UploadService {
       console.log('🎉 File uploaded & committed via block list! :');
       console.log("profileID:", EncodingProfileID);
       this.storageService.clear(fileId);
+      this.completedStorageService.updateCompletionStatus(file.name,true);
+
+      
       const thumbnailUrl = await this.blobService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, EncodingProfileID);
       
 

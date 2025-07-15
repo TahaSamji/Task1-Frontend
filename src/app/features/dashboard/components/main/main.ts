@@ -10,6 +10,8 @@ import { EncodingTableComponent } from '../encoding/encoding.component';
 import { UserUploadsComponent } from '../useruploads/user-uploads.component';
 import { VideoRenditionSelectorComponent } from '../videovariantselector/video-rendition-selector.component';
 import { ResumableUploadsComponent } from './resumableuploads/resumable-uploads.component';
+import { BlobService } from '../../../../core/services/blob.service';
+import { EncodingStateService } from '../../services/encoding-state.service';
 
 @Component({
   selector: 'app-upload',
@@ -22,31 +24,24 @@ import { ResumableUploadsComponent } from './resumableuploads/resumable-uploads.
 })
 export class UploadComponent implements OnInit {
   selectedFile: File | null = null;
+  profileId: number = 0;
+
 
   constructor(
     private uploadService: UploadService,
-    private completedStorageService: CompletedStorageService // ✅ Inject the service
-  ) {}
+    private encodingState: EncodingStateService,
+    private completedStorageService: CompletedStorageService,
+    private blobService: BlobService // ✅ Inject the service
+  ) { }
 
   ngOnInit(): void {
     console.log("Main component started");
   }
 
-  onFileSelected(event: Event): void {
+  async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-
-      // ✅ Check if already uploaded
-      const exists = this.completedStorageService.loadCompletedUpload(file.name);
-      console.log(exists);
-      if (exists) {
-        alert(`✅ File "${file.name}" is already uploaded.`);
-        this.selectedFile = null;
-       input.value = '';
-        return;
-      }
-
       this.selectedFile = file;
       console.log('File selected:', this.selectedFile.name);
     }
@@ -55,9 +50,29 @@ export class UploadComponent implements OnInit {
   async onUpload(): Promise<void> {
     if (this.selectedFile) {
       // ✅ Save to local storage before upload
-      this.completedStorageService.saveCompletedUpload(this.selectedFile.name);
+      const exists = this.completedStorageService.loadCompletedUpload(this.selectedFile.name);
+      console.log(exists);
+      if (exists) {
+        if(exists.isCompleted == true){
+        const selectedProfileId = this.encodingState.getSelectedProfileId();
+        if (selectedProfileId === null) {
+          alert('Please select an encoding profile first.');
+          return;
+        }
+        this.profileId = selectedProfileId;
+        console.log("This is ",selectedProfileId);
+        this.blobService.mergeCompleteAndRequestThumbnail(exists.totalChunks, exists.fileName, exists.size, this.profileId);
+         alert("merge Request Send");
+        return;
+      }
+      alert("Please Wait");
+      return;
+      }
+      this.completedStorageService.saveCompletedUpload(this.selectedFile.name, 0, this.selectedFile.size, false);
+        
       this.uploadService.onFileSelected(this.selectedFile);
-      
+      alert("FileSent");
+
     } else {
       alert('Please select a file first.');
     }
