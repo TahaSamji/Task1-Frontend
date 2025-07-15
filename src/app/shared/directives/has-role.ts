@@ -1,6 +1,6 @@
 // src/app/directives/has-role.directive.ts
 import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
-import { AuthService } from '../features/auth/auth.service';
+import { JwtAuthService } from '../../features/auth/jwt-auth.service';
 
 @Directive({
   selector: '[hasRole]',
@@ -10,7 +10,7 @@ export class HasRoleDirective {
   constructor(
     private templateRef: TemplateRef<any>,
     private viewContainer: ViewContainerRef,
-    private authService: AuthService
+    private authService: JwtAuthService
   ) {}
 
   @Input() set hasRole(expectedRole: string | string[]) {

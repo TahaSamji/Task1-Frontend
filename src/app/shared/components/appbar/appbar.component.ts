@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { EncodingProfileModalComponent } from "../../features/admin/modal/encodingprofilemodal.component";
+import { EncodingProfileModalComponent } from "../../../features/admin/modal/encodingprofilemodal.component";
 import { HasRoleDirective } from '../../directives/has-role';
 
 @Component({

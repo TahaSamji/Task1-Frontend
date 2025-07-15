@@ -1,19 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthService } from '../../features/auth/auth.service';
+import {  JwtAuthService } from '../../features/auth/jwt-auth.service';
+import { VideoMetaData } from '../models/video-metadata.model';
 
-export interface VideoMetaData {
-  id: number;
-  userId: number;
-  originalFilename: string;
-  encodingProfileId: number;
-  size: number;
-  defaultThumbnailUrl: string;
-  blobPath: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface VideoRendition {
   variantId: number;
@@ -39,7 +29,7 @@ export interface Thumbnail {
 export class UserService {
   private apiUrl = 'http://localhost:5206/api/video';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: JwtAuthService) {}
 
   getUserUploads(page: number = 1, pageSize: number = 6): Observable<VideoMetaData[]> {
     const headers = this.authService.getAuthHeaders();

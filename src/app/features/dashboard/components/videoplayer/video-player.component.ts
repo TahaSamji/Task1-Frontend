@@ -1,7 +1,14 @@
-import { Component, OnInit, ElementRef, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ElementRef,
+  ViewChild,
+  OnDestroy,
+  ChangeDetectorRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Hls from 'hls.js';
-import * as dashjs from 'dashjs'; // 👈 import DASH player
+import * as dashjs from 'dashjs';
 import { UploadService } from '../../services/upload.service';
 import { RenditionService } from '../../services/renditions-state.service';
 import { combineLatest } from 'rxjs';
@@ -17,23 +24,25 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
   thumbnailUrl: string | null = null;
   videoPlayBackUrl: string | null = null;
   format: string | null = null;
+
   @ViewChild('video', { static: true }) video!: ElementRef<HTMLVideoElement>;
+
   private hls: Hls | null = null;
   private dashPlayer: dashjs.MediaPlayerClass | null = null;
 
-
-  constructor(private uploadService: UploadService, private renditionService: RenditionService, private cdRef: ChangeDetectorRef) { }
-
+  constructor(
+    private uploadService: UploadService,
+    private renditionService: RenditionService,
+    private cdRef: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
-
     this.renditionService.getthumbnailUrlObservable().subscribe(url => {
       this.thumbnailUrl = url;
       this.cdRef.detectChanges();
       console.log('📸 Thumbnail received in component:', url);
     });
 
-    // Wait until BOTH URL and format are available
     combineLatest([
       this.renditionService.getVideoPlayBackUrlObservable(),
       this.renditionService.getVideoFormatTypeObservable()
@@ -45,63 +54,117 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
         this.tryInitializePlayer();
       }
     });
-
-
   }
-  //   ngOnInit(): void {
-  //   const video = this.video.nativeElement;
 
-  //   this.renditionService.getthumbnailUrlObservable().subscribe(url => {
-  //     this.thumbnailUrl = url;
-  //     this.cdRef.detectChanges();
-  //     console.log('📸 Thumbnail received in component:', url);
-  //   });
+  private extractSasToken(url: string): string {
+    try {
+      const urlObj = new URL(url);
+      const searchParams = urlObj.searchParams;
 
-  //   // Subscribe to both URL and format type
-  //   this.renditionService.getVideoPlayBackUrlObservable().subscribe(url => {
-  //     this.videoPlayBackUrl = url;
-  //     this.tryInitializePlayer(); // Try initializing player after URL update
-  //   });
+      const sasParams = ['sv', 'ss', 'srt', 'sp', 'se', 'st', 'spr', 'sig', "sr"];
+      const tokenParams = new URLSearchParams();
 
-  //   this.renditionService.getVideoFormatTypeObservable().subscribe(type => {
-  //     if (type) {
-  //       this.format = type;
-  //       // Try again after format is known
-  //     }
-  //   });
-  //    this.tryInitializePlayer();
-  // }
+      sasParams.forEach(param => {
+        const value = searchParams.get(param);
+        if (value) {
+          tokenParams.append(param, value);
+        }
+      });
+
+      return tokenParams.toString();
+    } catch (error) {
+      console.error('Error extracting SAS token:', error);
+      return '';
+    }
+  }
+
   tryInitializePlayer(): void {
     const video = this.video.nativeElement;
 
     if (!this.videoPlayBackUrl) return;
 
-    // Clean up previous players
+    // Cleanup existing players
     if (this.hls) {
       this.hls.destroy();
       this.hls = null;
     }
+
     if (this.dashPlayer) {
       this.dashPlayer.reset();
       this.dashPlayer = null;
     }
 
-    // Get format type from service
-    console.log("player:", this.format); // 👈 or store locally via subscription
+    const sasToken = this.extractSasToken(this.videoPlayBackUrl);
+  console.log('🔑 Extracted SAS token:', sasToken);
+  console.log('🎥 Player format:', this.format);
 
-    if (this.format === 'dash') {
-      this.dashPlayer = dashjs.MediaPlayer().create();
-      this.dashPlayer.initialize(video, this.videoPlayBackUrl, true);
-    } else if (this.format === 'hls') {
+ if (this.format === 'dash') {
+    this.dashPlayer = dashjs.MediaPlayer().create();
+
+    if (sasToken) {
+      // Create the RequestModifier with proper closure
+      const requestModifier = {
+        modifyRequestHeader: (xhr: any) => {
+          return xhr;
+        },
+        modifyRequestURL: (url: string) => {
+          console.log('🔗 Original URL:', url);
+          
+          // Skip token for manifest files (.mpd)
+          if (url.includes('.mpd')) {
+            console.log('⛔ Skipping token for manifest:', url);
+            return url;
+          }
+
+          // Append token to segment URLs
+          const modifiedUrl = url.includes('?') ? `${url}&${sasToken}` : `${url}?${sasToken}`;
+          console.log('✅ Modified URL:', modifiedUrl);
+          return modifiedUrl;
+        }
+      };
+
+      this.dashPlayer.extend('RequestModifier', () => requestModifier, true);
+    }
+
+    // Set up error handling
+    this.dashPlayer.on(dashjs.MediaPlayer.events.ERROR, (e: any) => {
+      console.error('❌ DASH Player Error:', e);
+    });
+
+    this.dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+      console.log('✅ DASH Stream initialized');
+    });
+
+    this.dashPlayer.initialize(video, this.videoPlayBackUrl, true);
+    }else if (this.format === 'hls') {
       if (Hls.isSupported()) {
-        this.hls = new Hls();
+        this.hls = new Hls({
+          xhrSetup: (xhr, url) => {
+            // ⛔️ Skip token for .m3u8 files (playlist)
+            if (url.includes('.m3u8')) {
+              xhr.open('GET', url, true);
+            } else {
+              // ✅ Append token to chunks (e.g., .ts or .m4s)
+              const urlWithToken = url.includes('?') ? `${url}&${sasToken}` : `${url}?${sasToken}`;
+              xhr.open('GET', urlWithToken, true);
+            }
+          }
+        });
+
         this.hls.loadSource(this.videoPlayBackUrl);
         this.hls.attachMedia(video);
-        this.hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-      } 
-      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = this.videoPlayBackUrl;
-        video.addEventListener('loadedmetadata', () => video.play());
+        this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play();
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        const urlWithToken = this.videoPlayBackUrl.includes('?')
+          ? `${this.videoPlayBackUrl}&${sasToken}`
+          : `${this.videoPlayBackUrl}?${sasToken}`;
+
+        video.src = urlWithToken;
+        video.addEventListener('loadedmetadata', () => {
+          video.play();
+        });
       } else {
         console.error('❌ HLS is not supported in this browser.');
       }
@@ -109,7 +172,6 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
       console.error('❌ Unknown format type:', this.format);
     }
   }
-
 
   ngOnDestroy(): void {
     if (this.hls) {

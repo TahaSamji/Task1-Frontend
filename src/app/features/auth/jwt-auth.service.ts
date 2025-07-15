@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { AuthService } from './auth-service.interface';
 
 interface AuthResponse {
   token: string;
@@ -18,7 +19,7 @@ interface JwtPayload {
 
 
 @Injectable({ providedIn: 'root' })
-export class AuthService {
+export class JwtAuthService implements AuthService {
   private apiUrl = 'http://localhost:5206/api/auth';
 
   private readonly tokenKey = 'token';

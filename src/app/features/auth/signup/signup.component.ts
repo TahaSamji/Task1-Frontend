@@ -1,7 +1,7 @@
 // features/auth/signup/signup.component.ts
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import {  JwtAuthService } from '../jwt-auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -22,7 +22,7 @@ export class SignupComponent {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    private authService: JwtAuthService,
     private router: Router
   ) {
     this.signupForm = this.fb.group({

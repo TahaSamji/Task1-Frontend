@@ -1,9 +1,10 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { UserService, VideoMetaData } from '../../../../core/services/user.service';
+import { UserService } from '../../../../core/services/user.service';
 import { CommonModule } from '@angular/common';
 import { RenditionService } from '../../services/renditions-state.service';
 import { ThumbnailModalStateService } from '../../services/thumbnail-modal-state.service';
 import { ThumbnailModalComponent } from './videothumbnails/thumbnail-modal.component';
+import { VideoMetaData } from '../../../../core/models/video-metadata.model';
 
 @Component({
     selector: 'app-user-uploads',

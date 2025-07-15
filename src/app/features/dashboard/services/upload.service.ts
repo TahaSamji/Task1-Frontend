@@ -1,16 +1,16 @@
 // upload.service.ts
 import { Injectable } from '@angular/core';
-import { BlobService } from '../../../core/services/blob.service';
-import { StorageService } from '../../../core/services/storage.service';
+import { AzureStorageService } from '../../../core/storage/cloud/azure-storage.service';
+import { StorageService } from '../../../core/storage/local/storage.service';
 import { Subject } from 'rxjs';
 import { EncodingStateService } from './encoding-state.service';
 import { UploadProgressStateService } from './progress-state.service';
-import { CompletedStorageService } from '../../../core/services/complete.storage.service';
+import { CompletedStorageService } from '../../../core/storage/local/complete.storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class UploadService {
   constructor(
-    private blobService: BlobService,
+    private cloudStorageService: AzureStorageService,
     private storageService: StorageService,
     private encodingState: EncodingStateService,
     private uploadProgressState:UploadProgressStateService,
@@ -40,12 +40,12 @@ export class UploadService {
   }
 
   async upload(file: File, EncodingProfileID: number): Promise<void> {
-    const chunkSize = this.blobService.getChunkSize();
+    const chunkSize = this.cloudStorageService.getChunkSize();
     const totalChunks = Math.ceil(file.size / chunkSize);
     const fileId = `${file.name}-${file.size}`;
     const uploaded = new Set(this.storageService.load(fileId));
     const blockIds: string[] = [];
-    const sasUrl = await this.blobService.getSasUrl(file.name);
+    const sasUrl = await this.cloudStorageService.getSasUrl(file.name);
 
     for (let i = 0; i < totalChunks; i++) {
       const blockId = btoa(`block-${String(i).padStart(6, '0')}`);
@@ -57,7 +57,7 @@ export class UploadService {
       }
 
       const chunk = file.slice(i * chunkSize, Math.min(file.size, (i + 1) * chunkSize));
-      await this.blobService.uploadBlock(sasUrl, blockId, chunk);
+      await this.cloudStorageService.uploadBlock(sasUrl, blockId, chunk);
       uploaded.add(i);
 
       this.storageService.save(fileId, Array.from(uploaded), EncodingProfileID);
@@ -68,14 +68,14 @@ export class UploadService {
     }
 
     if (uploaded.size === totalChunks) {
-      await this.blobService.commitBlockList(sasUrl, blockIds);
+      await this.cloudStorageService.commitBlockList(sasUrl, blockIds);
       console.log('🎉 File uploaded & committed via block list! :');
       console.log("profileID:", EncodingProfileID);
       this.storageService.clear(fileId);
       this.completedStorageService.updateCompletionStatus(file.name,true);
 
       
-      const thumbnailUrl = await this.blobService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, EncodingProfileID);
+      const thumbnailUrl = await this.cloudStorageService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, EncodingProfileID);
       
 
       this.thumbnailSubject.next(thumbnailUrl);

@@ -1,9 +1,10 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { CloudStorage } from './cloud-storage.interface';
 
 @Injectable({ providedIn: 'root' })
-export class BlobService {
+export class AzureStorageService implements CloudStorage {
   private readonly baseUrl = 'http://localhost:5206/api';
   private readonly CHUNK_SIZE = 5 * 1024 * 1024;
 

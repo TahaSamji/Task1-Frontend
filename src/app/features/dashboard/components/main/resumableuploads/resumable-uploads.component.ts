@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { StorageService } from '../../../../../core/services/storage.service';
+import { StorageService } from '../../../../../core/storage/local/storage.service';
 import { CommonModule } from '@angular/common';
 import { UploadService } from '../../../services/upload.service';
 
