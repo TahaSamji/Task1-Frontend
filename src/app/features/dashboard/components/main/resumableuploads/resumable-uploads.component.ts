@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { StorageService } from '../../../../../core/storage/local/storage.service';
 import { CommonModule } from '@angular/common';
 import { UploadService } from '../../../services/upload.service';
+import { UploadHandlerService } from '../../../services/upload-handler.service';
 
 interface UploadProgress {
   fileId: string;
@@ -12,15 +13,16 @@ interface UploadProgress {
 @Component({
   selector: 'app-resumable-uploads',
   templateUrl: './resumable-uploads.component.html',
-  standalone :true,
+  standalone: true,
   styleUrls: ['./resumable-uploads.component.css'],
-  imports :[CommonModule]
+  imports: [CommonModule]
 })
 export class ResumableUploadsComponent implements OnInit {
   uploads: UploadProgress[] = [];
   selectedFile: File | null = null;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(private storageService: StorageService,private uploadService:UploadService, private cdRef: ChangeDetectorRef) {}
+  constructor(private storageService: StorageService, private uploadService: UploadService, private cdRef: ChangeDetectorRef, private uploadHandler: UploadHandlerService) { }
 
   ngOnInit(): void {
     this.loadAllProgresses();
@@ -35,29 +37,12 @@ export class ResumableUploadsComponent implements OnInit {
     }));
   }
 
-   onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-      console.log('File selected:', this.selectedFile.name);
-    }
+  async onFileSelected(event: Event): Promise<void> {
+    await this.uploadHandler.handleFileSelection(event, this.fileInput);
   }
 
-  async onUpload(): Promise<void> {
-   
-  }
-
-  resumeUpload(fileId: string, encodingProfileId: number): void {
-    console.log(`🔁 Resuming upload for File ID: ${fileId}, Profile: ${encodingProfileId}`);
-     if (this.selectedFile) {
-      this.uploadService.onResumeUpload(this.selectedFile,encodingProfileId);
-      this.cdRef.detectChanges();
-    } else {
-      alert('Please select a file first.');
-    }
-
-
-    // TODO: Trigger your upload logic here
+  async resumeUpload(): Promise<void> {
+    await this.uploadHandler.handleUpload();
   }
 
   clearProgress(fileId: string): void {

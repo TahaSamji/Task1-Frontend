@@ -63,38 +63,6 @@ async commitBlockList(sasUrl: string, blockIds: string[]): Promise<void> {
     throw new Error(`❌ Commit block list failed: ${result.statusText}`);
   }
 }
-  // async uploadChunk(sasUrl: string, chunk: Blob): Promise<void> {
-  //   // Don't attach auth headers here — SAS URLs are already authenticated!
-  //   const result = await fetch(sasUrl, {
-  //     method: 'PUT',
-  //     headers: { 'x-ms-blob-type': 'BlockBlob' },
-  //     body: chunk
-  //   });
-
-  //   if (!result.ok) {
-  //     throw new Error(`❌ Upload failed: ${result.statusText}`);
-  //   }
-  // }
-
-  async mergeCompleteAndRequestThumbnail(
-  totalChunks: number,
-  outputFileName: string,
-  fileSize: number,
-  EncodingId: number
-): Promise<string> {
-  const headers = this.getAuthHeaders();
-
-  const response = await firstValueFrom(
-    this.http.post<{ thumbnailUrl: string }>(`${this.baseUrl}/video/mergeComplete`, {
-      totalChunks,
-      outputFileName,
-      fileSize,
-      EncodingId
-    }, { headers })
-  );
-
-  return response.thumbnailUrl;
-}
   getChunkSize(): number {
     return this.CHUNK_SIZE;
   }

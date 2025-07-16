@@ -17,8 +17,8 @@
         <td>{{ upload.encodingProfileId }}</td>
         <td>{{ upload.uploadedChunks.length }}</td>
         <td>
-           <input type="file" (change)="onFileSelected($event)" />
-            <button (click)="resumeUpload(upload.fileId, upload.encodingProfileId)">Resume</button>
+           <input  #fileInput type="file" (change)="onFileSelected($event)" />
+            <button (click)="resumeUpload()">Resume</button>
           <button class="clear" (click)="clearProgress(upload.fileId)">🗑 Clear</button>
         </td>
       </tr>

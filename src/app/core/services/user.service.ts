@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import {  JwtAuthService } from '../../features/auth/jwt-auth.service';
 import { VideoMetaData } from '../models/video-metadata.model';
 
@@ -72,6 +72,35 @@ setDefaultThumbnail(thumbnailId: number, fileId: number): Observable<any> {
     headers,
     params
   });
+}
+
+async mergeCompleteAndRequestThumbnail(
+  totalChunks: number,
+  outputFileName: string,
+  fileSize: number,
+  duration : number,
+  resolution : string,
+  mimeType: string,
+  width:number,
+  height:number
+
+): Promise<string> {
+  const headers = this.authService.getAuthHeaders();
+
+  const response = await firstValueFrom(
+    this.http.post<{ message: string }>(`${this.apiUrl}/mergeComplete`, {
+      totalChunks,
+      outputFileName,
+      fileSize,
+      resolution,
+      mimeType,
+      duration,
+      width,height
+
+    }, { headers })
+  );
+
+  return response.message;
 }
 
 }

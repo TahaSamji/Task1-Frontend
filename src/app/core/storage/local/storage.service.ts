@@ -15,10 +15,9 @@ export class StorageService {
     }
   }
 
-  save(fileId: string, uploadedChunks: number[],encodingProfileId:number): void {
+  save(fileId: string, uploadedChunks: number[]): void {
     localStorage.setItem(this.getKey(fileId), JSON.stringify({
       uploadedChunks,
-      encodingProfileId,
       timestamp: new Date().toISOString()
     }));
   }

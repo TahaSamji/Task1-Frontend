@@ -138,7 +138,9 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     this.dashPlayer.initialize(video, this.videoPlayBackUrl, true);
     }else if (this.format === 'hls') {
       if (Hls.isSupported()) {
-        this.hls = new Hls({
+        this.hls = new Hls(
+          
+          {
           xhrSetup: (xhr, url) => {
             // ⛔️ Skip token for .m3u8 files (playlist)
             if (url.includes('.m3u8')) {
@@ -149,7 +151,9 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
               xhr.open('GET', urlWithToken, true);
             }
           }
-        });
+        }
+      
+      );
 
         this.hls.loadSource(this.videoPlayBackUrl);
         this.hls.attachMedia(video);
