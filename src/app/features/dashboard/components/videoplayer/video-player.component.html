@@ -5,6 +5,15 @@
       <video #video class="video-player" controls  [poster]="thumbnailUrl">
         Your browser does not support the video tag.
       </video>
+      <div class="settings-wrapper">
+  <button (click)="toggleDropdown()" class="settings-button">⚙️</button>
+  <ul *ngIf="dropdownOpen" class="quality-dropdown">
+    <li *ngFor="let rendition of renditions" (click)="onQualitySelect(rendition)">
+      {{ mapResolutionToLabel(rendition.resolution) }}
+    </li>
+  </ul>
+</div>
+
     </div>
   </div>
 </section>
