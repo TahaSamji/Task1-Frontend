@@ -82,7 +82,8 @@ async mergeCompleteAndRequestThumbnail(
   resolution : string,
   mimeType: string,
   width:number,
-  height:number
+  height:number,
+  browserType :string
 
 ): Promise<string> {
   const headers = this.authService.getAuthHeaders();
@@ -95,7 +96,7 @@ async mergeCompleteAndRequestThumbnail(
       resolution,
       mimeType,
       duration,
-      width,height
+      width,height,browserType
 
     }, { headers })
   );

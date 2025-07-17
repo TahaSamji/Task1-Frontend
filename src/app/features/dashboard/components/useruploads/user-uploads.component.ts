@@ -69,6 +69,7 @@ export class UserUploadsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Failed to load renditions:', err);
+                alert("Please Wait for Video to Be Available");
                 this.renditionService.setRenditions([], "");
             }
         });

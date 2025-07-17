@@ -7,13 +7,14 @@ import { UploadProgressStateService } from './progress-state.service';
 import { CompletedStorageService } from '../../../core/storage/local/complete.storage.service';
 import { ResponseStateService } from './response-state.service';
 import { UserService } from '../../../core/services/user.service';
+import { BrowserStateService } from './browser-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class UploadService {
   constructor(
     private cloudStorageService: AzureStorageService,
     private storageService: StorageService,
-    private encodingState: EncodingStateService,
+    private browserState: BrowserStateService,
     private uploadProgressState: UploadProgressStateService,
     private completedStorageService: CompletedStorageService,
     private responseStateService: ResponseStateService,
@@ -55,8 +56,8 @@ export class UploadService {
       this.storageService.clear(fileId);
       this.completedStorageService.updateCompletionStatus(file.name, true);
 
-
-      const message = await this.userService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size,duration,resolution,file.type,width,height);
+     const browserState =  this.browserState.getBrowserType();
+      const message = await this.userService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size,duration,resolution,file.type,width,height,browserState!);
 
       alert(message);
       this.responseStateService.setResponseState(message);

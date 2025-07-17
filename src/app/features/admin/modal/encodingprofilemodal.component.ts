@@ -2,7 +2,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { EncodingProfile, EncodingService } from '../services/encodings.service';
+import { EncodingService } from '../services/encodings.service';
+import { EncodingProfile } from '../../../core/models/encoding-profile.model';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class EncodingProfileModalComponent implements OnInit {
       codec: ['libx264'],
       crf: [23],
       framerate: ['30'],
+      browserType : [''],
       enableHardwareAccel: [false],
       enableDRM: [false],
       generateThumbnails: [true],
@@ -141,7 +143,9 @@ export class EncodingProfileModalComponent implements OnInit {
       bitrate: formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate,
       format_type: formValue.formatType,
       ffmpeg_args: this.generateFFmpegArgs(),
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      browser_type : formValue.browserType
+      
     };
 
     // Send to backend

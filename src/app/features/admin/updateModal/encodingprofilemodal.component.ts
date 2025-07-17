@@ -4,16 +4,8 @@ import { Component, OnInit, Output, EventEmitter, Input, SimpleChanges, ChangeDe
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EncodingService } from '../services/encodings.service';
 import { finalize, Subject, takeUntil } from 'rxjs';
+import { EncodingProfile } from '../../../core/models/encoding-profile.model';
 
-export interface EncodingProfile {
-  id?: number;
-  name: string;
-  ffmpeg_args: string;
-  resolution: string;
-  bitrate: string;
-  format_type: string;
-  created_at?: string;
-}
 
 @Component({
   selector: 'app-updateencoding-profile-modal',
@@ -57,6 +49,7 @@ export class UpdateEncodingProfileModalComponent implements OnInit {
       formatType: ['', Validators.required],
       preset: ['medium'],
       codec: ['libx264'],
+      browserType : [''],
       crf: [23],
       framerate: ['30'],
       enableHardwareAccel: [false],
@@ -104,7 +97,8 @@ export class UpdateEncodingProfileModalComponent implements OnInit {
       bitrate: isCustomBitrate ? 'custom' : profile.bitrate,
       customBitrate: profile.bitrate || '',  // ← Always populate this
       formatType: profile.format_type || '',
-      customFFmpegArgs: ''
+      customFFmpegArgs: '',
+      browserType :profile.browser_type
     });
   }
 
@@ -189,7 +183,8 @@ export class UpdateEncodingProfileModalComponent implements OnInit {
         bitrate: formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate,
         format_type: formValue.formatType,
         ffmpeg_args: this.generateFFmpegArgs(),
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        browser_type : formValue.browserType
       };
 
       if (!encodingProfile.id) {

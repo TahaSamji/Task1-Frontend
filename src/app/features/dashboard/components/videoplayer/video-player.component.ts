@@ -9,7 +9,6 @@ import {
 import { CommonModule } from '@angular/common';
 import Hls from 'hls.js';
 import * as dashjs from 'dashjs';
-import { UploadService } from '../../services/upload.service';
 import { RenditionService } from '../../services/renditions-state.service';
 import { combineLatest } from 'rxjs';
 import { VideoRenditionDto } from '../../../../core/models/video-renditions.model';

@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, finalize } from 'rxjs';
-import { EncodingProfile, EncodingService } from '../../../admin/services/encodings.service';
+import { EncodingService } from '../../../admin/services/encodings.service';
 import { FormsModule } from '@angular/forms';
 import { EncodingStateService } from '../../services/encoding-state.service';
 import { UpdateEncodingProfileModalComponent } from "../../../admin/updateModal/encodingprofilemodal.component";
 import { HasRoleDirective } from '../../../../shared/directives/has-role';
+import { EncodingProfile } from '../../../../core/models/encoding-profile.model';
 
 @Component({
   selector: 'app-encoding-table',

@@ -2,16 +2,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { EncodingProfile } from '../../../core/models/encoding-profile.model';
 
-export interface EncodingProfile {
-  id?: number;
-  name: string;
-  ffmpeg_args: string;
-  resolution: string;
-  bitrate: string;
-  format_type: string;
-  created_at?: string;
-}
+
 
 export interface PaginatedResponse {
   items: EncodingProfile[];
