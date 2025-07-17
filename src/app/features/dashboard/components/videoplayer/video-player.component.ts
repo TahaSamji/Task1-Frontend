@@ -12,7 +12,7 @@ import * as dashjs from 'dashjs';
 import { UploadService } from '../../services/upload.service';
 import { RenditionService } from '../../services/renditions-state.service';
 import { combineLatest } from 'rxjs';
-import { VideoRenditionDto } from '../videovariantselector/video-rendition-selector.component';
+import { VideoRenditionDto } from '../../../../core/models/video-renditions.model';
 
 @Component({
   selector: 'app-video-player',
@@ -100,6 +100,8 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
+
+
   tryInitializePlayer(): void {
     const video = this.video.nativeElement;
 
@@ -121,44 +123,57 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     console.log('🎥 Player format:', this.format);
 
     if (this.format === 'dash') {
-      this.dashPlayer = dashjs.MediaPlayer().create();
-
-      if (sasToken) {
-        // Create the RequestModifier with proper closure
-        const requestModifier = {
-          modifyRequestHeader: (xhr: any) => {
-            return xhr;
-          },
-          modifyRequestURL: (url: string) => {
-            console.log('🔗 Original URL:', url);
-
-            // Skip token for manifest files (.mpd)
-            if (url.includes('.mpd')) {
-              console.log('⛔ Skipping token for manifest:', url);
-              return url;
-            }
-
-            // Append token to segment URLs
-            const modifiedUrl = url.includes('?') ? `${url}&${sasToken}` : `${url}?${sasToken}`;
-            console.log('✅ Modified URL:', modifiedUrl);
-            return modifiedUrl;
-          }
-        };
-
-        this.dashPlayer.extend('RequestModifier', () => requestModifier, true);
+  this.dashPlayer = dashjs.MediaPlayer().create();
+  this.dashPlayer.initialize(video, this.videoPlayBackUrl, true);
+  
+  // Fixed segment interceptor with proper error handling
+  const segmentInterceptor = (request: any): Promise<any> => {
+    try {
+      // Check if this is a video segment request
+      if (request.cmcd?.ot === 'v') {
+        const separator = request.url.includes('?') ? '&' : '?';
+        request.url += `${separator}request-interceptor=true`;
+        console.log('🎯 Intercepted Segment URL:', request.url);
       }
+      
+      // Add SAS token to all requests if available
+      if (sasToken) {
+        const separator = request.url.includes('?') ? '&' : '?';
+        request.url += `${separator}${sasToken}`;
+        console.log('🔐 Added SAS token to request:', request.url);
+      }
+      
+      return Promise.resolve(request);
+    } catch (error) {
+      console.error('❌ Error in segment interceptor:', error);
+      // Return the original request if interceptor fails
+      return Promise.resolve(request);
+    }
+  };
 
-      // Set up error handling
-      this.dashPlayer.on(dashjs.MediaPlayer.events.ERROR, (e: any) => {
-        console.error('❌ DASH Player Error:', e);
-      });
+  // Add the interceptor
+  this.dashPlayer.addRequestInterceptor(segmentInterceptor);
 
-      this.dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
-        console.log('✅ DASH Stream initialized');
-      });
+  // Enhanced error handling with request details
+  this.dashPlayer.on(dashjs.MediaPlayer.events.ERROR, (e: any) => {
+    console.error('❌ DASH Player Error:', e);
+    if (e.error && e.error.request) {
+      console.error('🔍 Failed Request URL:', e.error.request.url);
+      console.error('🔍 Request Status:', e.error.request.status);
+      console.error('🔍 Request Headers:', e.error.request.headers);
+    }
+  });
 
-      this.dashPlayer.initialize(video, this.videoPlayBackUrl, true);
-    } else if (this.format === 'hls') {
+  // Optional: Add success logging for debugging
+  this.dashPlayer.on(dashjs.MediaPlayer.events.FRAGMENT_LOADING_COMPLETED, (e: any) => {
+    console.log('✅ Fragment loaded successfully:', e.request?.url);
+  });
+
+  // Optional: Add manifest loading events
+  this.dashPlayer.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, (e: any) => {
+    console.log('📋 Manifest loaded successfully');
+  });
+} else if (this.format === 'hls') {
       if (Hls.isSupported()) {
         this.hls = new Hls(
 
@@ -208,3 +223,26 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     }
   }
 }
+//  // Log successful requests
+//       this.dashPlayer.on(dashjs.MediaPlayer.events.FRAGMENT_LOADING_COMPLETED, (e: any) => {
+//         console.log('✅ Fragment loaded successfully:', e.request.url);
+//       });
+
+//       // Log when segments start loading
+//       this.dashPlayer.on(dashjs.MediaPlayer.events.FRAGMENT_LOADING_STARTED, (e: any) => {
+//         console.log('🔄 Started loading fragment:', e.request.url);
+//       });
+
+//       // Stream initialization logging
+//       this.dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+//         console.log('✅ DASH Stream initialized successfully');
+//       });
+
+//       // Manifest loading events
+//       this.dashPlayer.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, (e: any) => {
+//         console.log('📄 Manifest loaded from:', e.data.url);
+//       });
+
+//       // Initialize with manifest
+//       console.log('🎬 Initializing DASH player with manifest URL:', this.videoPlayBackUrl);
+//       this.dashPlayer.initialize(video, this.videoPlayBackUrl, true);

@@ -4,11 +4,13 @@ import { Subject, takeUntil, finalize } from 'rxjs';
 import { EncodingProfile, EncodingService } from '../../../admin/services/encodings.service';
 import { FormsModule } from '@angular/forms';
 import { EncodingStateService } from '../../services/encoding-state.service';
+import { UpdateEncodingProfileModalComponent } from "../../../admin/updateModal/encodingprofilemodal.component";
+import { HasRoleDirective } from '../../../../shared/directives/has-role';
 
 @Component({
   selector: 'app-encoding-table',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HasRoleDirective, UpdateEncodingProfileModalComponent],
   templateUrl: './encoding.component.html',
   styleUrls: ['./encoding.component.css']
 })
@@ -19,15 +21,53 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
   pageSize = 5;
   loading = false;
   error: string | null = null;
+  showModal = false;
+  selectedProfile: EncodingProfile | null = null;
 
   private destroy$ = new Subject<void>();
 
-  constructor(private encodingService: EncodingService,  private cdRef: ChangeDetectorRef,private encodingState: EncodingStateService) { }
+  constructor(private encodingService: EncodingService, private cdRef: ChangeDetectorRef, private encodingState: EncodingStateService) { }
   selectedProfileId: number | null = null;
+
+  openModal(profile: EncodingProfile): void {
+    this.selectedProfile = profile;
+    this.showModal = true;
+  }
+  onModalClosed() {
+    this.showModal = false;
+  }
+
+  onProfileCreated(profile: any) {
+    console.log('Profile created in parent:', profile);
+    this.showModal = false;
+    this.cdRef.detectChanges();
+    // You can now store, display, or send this profile to the backend
+  }
 
   onProfileSelected(profileId: number) {
     console.log("✅ Selected Profile ID:", profileId);
     this.encodingState.setSelectedProfileId(profileId);
+  }
+
+  onDelete(id: number): void {
+    const profile = this.encodings.find(p => p.id === id);
+    const name = profile?.name || 'this profile';
+
+    const confirmed = confirm(`Are you sure you want to delete profile "${name}"?`);
+    if (!confirmed) return;
+
+    this.encodingService.deleteEncodingProfile(id).subscribe({
+      next: () => {
+          this.fetchEncodings(); 
+                this.cdRef.detectChanges();
+
+        console.log(`✅ Encoding profile deleted: ID ${id}`);
+        // Remove the deleted profile from the local list
+      },
+      error: (err) => {
+        console.error(`❌ Failed to delete encoding profile:`, err);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -58,7 +98,7 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
           this.total = res.total || 0;
           this.loading = false;
           this.cdRef.detectChanges();
-          
+
         },
         error: (error) => {
           console.error('Failed to load encoding profiles:', error);
@@ -76,7 +116,7 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
     if (this.canGoToNextPage()) {
       this.page++;
       this.fetchEncodings();
-     
+
     }
   }
 
@@ -87,7 +127,7 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
     if (this.canGoToPreviousPage()) {
       this.page--;
       this.fetchEncodings();
-      
+
     }
   }
 

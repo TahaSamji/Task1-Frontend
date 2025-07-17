@@ -2,7 +2,7 @@
 <div class="modal-overlay" (click)="closeModal()">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Create Encoding Profile</h2>
+      <h2>Update Encoding Profile</h2>
       <button class="close-btn" (click)="closeModal()">×</button>
     </div>
 
@@ -20,6 +20,7 @@
             formControlName="name"
             placeholder="e.g., 4K Ultra HD, Mobile Optimized"
             class="form-control"
+          
           />
           <div class="error-message" *ngIf="encodingForm.get('name')?.invalid && encodingForm.get('name')?.touched">
             Profile name is required
@@ -55,8 +56,9 @@
               type="text" 
               id="customResolution" 
               formControlName="customResolution"
-              placeholder="e.g., 1600x900"
+              placeholder=""
               class="form-control"
+            
             />
           </div>
         </div>
@@ -66,14 +68,14 @@
             <label for="bitrate">Video Bitrate</label>
             <select id="bitrate" formControlName="bitrate" class="form-control">
               <option value="">Select Bitrate</option>
-              <option value="18000k">18 Mbps (4K Premium)</option>
-              <option value="8000k">8 Mbps (2K Standard)</option>
+              <option value="25000k">25 Mbps (4K Premium)</option>
+              <option value="15000k">15 Mbps (4K Standard)</option>
+              <option value="8000k">8 Mbps (1080p High)</option>
               <option value="5000k">5 Mbps (1080p Standard)</option>
               <option value="3000k">3 Mbps (720p High)</option>
-               <option value="2200k">2.2 Mbps (540p)</option>
-              <option value="1500k">1.5 Mbps (480p)</option>
-              <option value="800k">800 Kbps (360p)</option>
-               <option value="400k">400 Kbps (240p)</option>
+              <option value="2000k">2 Mbps (720p Standard)</option>
+              <option value="1000k">1 Mbps (480p)</option>
+              <option value="500k">500 Kbps (360p)</option>
               <option value="custom">Custom</option>
             </select>
           </div>
@@ -197,7 +199,7 @@
           Cancel
         </button>
         <button type="submit" class="btn btn-primary" [disabled]="encodingForm.invalid">
-          Create Profile
+          Update Profile
         </button>
       </div>
     </form>

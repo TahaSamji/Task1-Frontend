@@ -44,7 +44,6 @@ export class JwtAuthService implements AuthService {
   setToken(token: string): void {
     sessionStorage.setItem(this.tokenKey, token);
 
-    console.log("User role:", this.getRole());
   }
 
   getToken(): string | null {
@@ -70,7 +69,6 @@ export class JwtAuthService implements AuthService {
     if (!token) return null;
 
     const decoded = jwtDecode<JwtPayload>(token);
-    console.log(decoded);
     return decoded.role;
   }
 
@@ -80,7 +78,6 @@ export class JwtAuthService implements AuthService {
     if (!token) return null;
 
     const decoded = jwtDecode<JwtPayload>(token);
-    console.log(decoded);
     return decoded.sub;
   }
 

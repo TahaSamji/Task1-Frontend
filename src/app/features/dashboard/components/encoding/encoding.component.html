@@ -1,3 +1,10 @@
+
+<app-updateencoding-profile-modal *ngIf="showModal" 
+[selectedProfile]="selectedProfile"
+  (modalClosed)="onModalClosed()"
+  (profileCreated)="onProfileCreated($event)">
+</app-updateencoding-profile-modal>
+
 <div class="encoding-table-container">
   <h2>Encoding Profiles</h2>
 
@@ -65,8 +72,12 @@
             </div>
           </td>
           <td>
-            <input type="radio" name="selectedProfile" [value]="profile.id" [(ngModel)]="selectedProfileId"
-              (change)="onProfileSelected(profile.id!)" />
+            <button *hasRole="'Admin'" class="custom-encoding-button" (click)="openModal(profile)">
+              ✏️
+            </button>
+              <button *hasRole="'Admin'" class="custom-encoding-button" (click)="onDelete(profile?.id!)">
+                🗑️
+            </button>
           </td>
         </tr>
       </tbody>

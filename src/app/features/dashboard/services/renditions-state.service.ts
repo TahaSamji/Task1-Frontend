@@ -1,7 +1,7 @@
 // rendition-state.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { VideoRenditionDto } from '../components/videovariantselector/video-rendition-selector.component';
+import { VideoRenditionDto } from '../../../core/models/video-renditions.model';
 
 @Injectable({
     providedIn: 'root',

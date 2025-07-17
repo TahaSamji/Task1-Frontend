@@ -7,6 +7,7 @@ import { VideoPlayerComponent } from '../videoplayer/video-player.component';
 import { UserUploadsComponent } from '../useruploads/user-uploads.component';
 import { ResumableUploadsComponent } from './resumableuploads/resumable-uploads.component';
 import { UploadHandlerService } from '../../services/upload-handler.service';
+import { EncodingTableComponent } from "../encoding/encoding.component";
 
 @Component({
   selector: 'app-upload',
@@ -14,8 +15,9 @@ import { UploadHandlerService } from '../../services/upload-handler.service';
   templateUrl: './main_component.html',
   styleUrls: ['./main_component.css'],
   imports: [
-    RouterModule, AppbarComponent, CommonModule, VideoPlayerComponent, UserUploadsComponent, ResumableUploadsComponent, UploadProgressComponent
-  ]
+    RouterModule, AppbarComponent, CommonModule, VideoPlayerComponent, UserUploadsComponent, ResumableUploadsComponent, UploadProgressComponent,
+    EncodingTableComponent
+]
 })
 export class UploadComponent implements OnInit {
   selectedFile: File | null = null;
