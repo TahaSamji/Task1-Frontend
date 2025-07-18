@@ -6,7 +6,6 @@
     <thead>
       <tr>
         <th>File ID</th>
-        <th>Encoding Profile ID</th>
         <th>Uploaded Chunks</th>
         <th>Actions</th>
       </tr>
@@ -14,7 +13,6 @@
     <tbody>
       <tr *ngFor="let upload of uploads">
         <td>{{ upload.fileId }}</td>
-        <td>{{ upload.encodingProfileId }}</td>
         <td>{{ upload.uploadedChunks.length }}</td>
         <td>
            <input  #fileInput type="file" (change)="onFileSelected($event)" />

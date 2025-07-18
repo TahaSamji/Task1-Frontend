@@ -2,18 +2,20 @@
 import { Injectable, ElementRef } from '@angular/core';
 import { UploadService } from './upload.service';
 import { CompletedStorageService } from '../../../core/storage/local/complete.storage.service';
+import { StorageService } from '../../../core/storage/local/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class UploadHandlerService {
     selectedFile: File | null = null;
     videoDuration = 0;
-    width  = 0;
+    width = 0;
     height = 0;
     resolution = '';
 
     constructor(
         private uploadService: UploadService,
-        private completedStorageService: CompletedStorageService
+        private storageService: CompletedStorageService,
+
     ) { }
 
     async handleFileSelection(event: Event, fileInput: ElementRef<HTMLInputElement>): Promise<void> {
@@ -37,10 +39,18 @@ export class UploadHandlerService {
         }
 
         // ✅ Prevent re-upload
-        const exists = this.completedStorageService.loadCompletedUpload(this.selectedFile.name);
+        const exists = this.storageService.loadUpload(this.selectedFile.name);
         if (exists) {
-            alert('Video already uploaded.');
-            return;
+            if (exists.isCompleted && !exists.isUploading) {
+                alert('Video already uploaded.');
+                return;
+            }  if (this.storageService.shouldResume(exists)) {
+                this.uploadService.upload(this.selectedFile, this.videoDuration, this.resolution, this.width, this.height);
+                alert('📤 Video sent for upload.');
+                return;
+            }
+
+
         }
 
         const video = document.createElement('video');
@@ -67,10 +77,11 @@ export class UploadHandlerService {
         });
 
         // Save to local store
-        this.completedStorageService.saveCompletedUpload(this.selectedFile.name, 0, this.selectedFile.size, false);
+        this.storageService.saveUpload(this.selectedFile.name, this.selectedFile.size, this.selectedFile.size, false, []);
+        // this.storageService.save()
 
         // Trigger upload
-        this.uploadService.upload(this.selectedFile, this.videoDuration, this.resolution,this.width,this.height);
+        this.uploadService.upload(this.selectedFile, this.videoDuration, this.resolution, this.width, this.height);
         alert('📤 Video sent for upload.');
     }
 }

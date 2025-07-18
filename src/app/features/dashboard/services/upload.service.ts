@@ -13,23 +13,24 @@ import { BrowserStateService } from './browser-state.service';
 export class UploadService {
   constructor(
     private cloudStorageService: AzureStorageService,
-    private storageService: StorageService,
+    private storageService: CompletedStorageService,
     private browserState: BrowserStateService,
     private uploadProgressState: UploadProgressStateService,
-    private completedStorageService: CompletedStorageService,
+    // private completedStorageService: CompletedStorageService,
     private responseStateService: ResponseStateService,
-    private userService : UserService
+    private userService: UserService
   ) { }
 
 
-  async upload(file: File,duration:number,resolution:string,width:number,height:number): Promise<void> {
+  async upload(file: File, duration: number, resolution: string, width: number, height: number): Promise<void> {
     const chunkSize = this.cloudStorageService.getChunkSize();
     const totalChunks = Math.ceil(file.size / chunkSize);
-    const fileId = `${file.name}-${file.size}`;
-    const uploaded = new Set(this.storageService.load(fileId));
+    const fileId = `${file.name}`;
+    const uploaded = new Set(this.storageService.loadUploadChunks(fileId));
     const blockIds: string[] = [];
     const sasUrl = await this.cloudStorageService.getSasUrl(file.name);
-
+    var upload = this.storageService.loadUpload(fileId);
+     this.storageService.updateIsUploadingStatus(fileId,true);
     for (let i = 0; i < totalChunks; i++) {
       const blockId = btoa(`block-${String(i).padStart(6, '0')}`);
       blockIds.push(blockId);
@@ -43,7 +44,7 @@ export class UploadService {
       await this.cloudStorageService.uploadBlock(sasUrl, blockId, chunk);
       uploaded.add(i);
 
-      this.storageService.save(fileId, Array.from(uploaded));
+      this.storageService.saveChunk(fileId, Array.from(uploaded));
       console.log(`✅ Uploaded chunk ${i + 1}/${totalChunks}`);
 
       const progressPercent = Math.floor((uploaded.size / totalChunks) * 100);
@@ -53,11 +54,11 @@ export class UploadService {
     if (uploaded.size === totalChunks) {
       await this.cloudStorageService.commitBlockList(sasUrl, blockIds);
       console.log('🎉 File uploaded & committed via block list! :');
-      this.storageService.clear(fileId);
-      this.completedStorageService.updateCompletionStatus(file.name, true);
+      this.storageService.updateCompletionStatus(file.name, true);
+        this.storageService.updateIsUploadingStatus(fileId,false);
 
-     const browserState =  this.browserState.getBrowserType();
-      const message = await this.userService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size,duration,resolution,file.type,width,height,browserState!);
+      const browserState = this.browserState.getBrowserType();
+      const message = await this.userService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, duration, resolution, file.type, width, height, browserState!);
 
       alert(message);
       this.responseStateService.setResponseState(message);

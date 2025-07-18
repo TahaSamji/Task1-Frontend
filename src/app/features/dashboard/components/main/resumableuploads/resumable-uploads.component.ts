@@ -3,10 +3,10 @@ import { StorageService } from '../../../../../core/storage/local/storage.servic
 import { CommonModule } from '@angular/common';
 import { UploadService } from '../../../services/upload.service';
 import { UploadHandlerService } from '../../../services/upload-handler.service';
+import { CompletedStorageService } from '../../../../../core/storage/local/complete.storage.service';
 
 interface UploadProgress {
   fileId: string;
-  encodingProfileId: number;
   uploadedChunks: number[];
 }
 
@@ -22,18 +22,17 @@ export class ResumableUploadsComponent implements OnInit {
   selectedFile: File | null = null;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(private storageService: StorageService, private uploadService: UploadService, private cdRef: ChangeDetectorRef, private uploadHandler: UploadHandlerService) { }
+  constructor(private storageService: CompletedStorageService, private uploadService: UploadService, private cdRef: ChangeDetectorRef, private uploadHandler: UploadHandlerService) { }
 
   ngOnInit(): void {
     this.loadAllProgresses();
   }
 
   loadAllProgresses(): void {
-    const entries: { fileId: string; encodingProfileId: number }[] = this.storageService.getAllUploadProgresses();
+    const entries: { fileId: string;}[] = this.storageService.getAllUploadProgresses();
     this.uploads = entries.map(entry => ({
       fileId: entry.fileId,
-      encodingProfileId: entry.encodingProfileId,
-      uploadedChunks: this.storageService.load(entry.fileId)
+      uploadedChunks: this.storageService.loadUploadChunks(entry.fileId)
     }));
   }
 

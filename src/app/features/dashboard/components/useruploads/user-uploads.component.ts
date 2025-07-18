@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { UserService } from '../../../../core/services/user.service';
 import { CommonModule } from '@angular/common';
 import { RenditionService } from '../../services/renditions-state.service';
@@ -22,10 +22,14 @@ export class UserUploadsComponent implements OnInit {
     isModalOpen = false;
     selectedVideoId: number = 0;
     selectedThumbnailId: number | null = null;
-    constructor(private userService: UserService,private thumbnailModalStateService:ThumbnailModalStateService, private cdRef: ChangeDetectorRef, private renditionService: RenditionService) { }
+    constructor(private userService: UserService, private thumbnailModalStateService: ThumbnailModalStateService, private cdRef: ChangeDetectorRef, private renditionService: RenditionService) { }
 
     ngOnInit(): void {
         this.loadUserUploads(this.currentPage);
+    }
+    ngAfterViewInit() {
+        // async fix for value updated after check
+        this.cdRef.detectChanges();
     }
 
     loadUserUploads(page: number): void {
@@ -98,28 +102,17 @@ export class UserUploadsComponent implements OnInit {
         event.stopPropagation();
         this.isModalOpen = true;
         this.selectedVideoId = videoId;
-      
-        console.log("clicked",videoId) // Prevent card click event
+
+        console.log("clicked", videoId) // Prevent card click event
         this.thumbnailModalStateService.setModalState(this.selectedVideoId);
     }
 
     onModalClose(): void {
         this.isModalOpen = false;
         this.selectedVideoId = 0;
+        this.cdRef.detectChanges();
     }
 
-    onThumbnailSelected(thumbnailId: number): void {
-        this.selectedThumbnailId = thumbnailId;
-        console.log('Thumbnail selected:', thumbnailId, 'for video:', this.selectedVideoId);
 
-        // Here you can add logic to update the video's thumbnail
-        // For example, call an API to set the selected thumbnail as default
-        // this.userService.setDefaultThumbnail(this.selectedVideoId, thumbnailId).subscribe(...)
-
-        // Optional: Show feedback message for a few seconds
-        setTimeout(() => {
-            this.selectedThumbnailId = null;
-        }, 3000);
-    }
 
 }
