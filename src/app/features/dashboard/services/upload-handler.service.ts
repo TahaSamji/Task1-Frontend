@@ -1,8 +1,8 @@
 // core/upload/upload-handler.service.ts
 import { Injectable, ElementRef } from '@angular/core';
-import { UploadService } from './upload.service';
+import { UploadService } from '../../../core/storage/cloud/chunking.service';
 import { CompletedStorageService } from '../../../core/storage/local/complete.storage.service';
-import { StorageService } from '../../../core/storage/local/storage.service';
+import { ResumeStorageService } from '../../../core/storage/local/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class UploadHandlerService {
@@ -15,6 +15,7 @@ export class UploadHandlerService {
     constructor(
         private uploadService: UploadService,
         private storageService: CompletedStorageService,
+        private resumeStorageService:ResumeStorageService
 
     ) { }
 
@@ -37,20 +38,16 @@ export class UploadHandlerService {
             alert('Please select a video first.');
             return;
         }
-
         // ✅ Prevent re-upload
         const exists = this.storageService.loadUpload(this.selectedFile.name);
         console.log("Handle Upload Service:", exists)
         if (exists) {
-            if (exists.isCompleted) {
+            if (exists.isComplete) {
                 console.log("Handle Upload Service:", exists)
                 alert('Video already uploaded.');
                 return;
-            } else if (!exists.isCompleted && !exists.isUploading) {
-                console.log("Handle Upload Service:", exists)
-                alert('Video already uploaded. Please Wait!');
-                return;
-            }
+            } 
+            
             else {
                 alert('Video already uploading.');
                 return;
@@ -82,7 +79,9 @@ export class UploadHandlerService {
         });
 
         // Save to local store
-        this.storageService.saveUpload(this.selectedFile.name, this.selectedFile.size, this.selectedFile.size, false, []);
+        this.storageService.saveUpload(this.selectedFile.name, this.selectedFile.size,false);
+        this.resumeStorageService.saveUpload(this.selectedFile.name, []);
+
         // this.storageService.save()
 
         // Trigger upload
@@ -95,7 +94,7 @@ export class UploadHandlerService {
             alert('Please select a video first.');
             return;
         }
-          const video = document.createElement('video');
+        const video = document.createElement('video');
         video.preload = 'metadata';
 
         const objectUrl = URL.createObjectURL(this.selectedFile);
@@ -117,14 +116,11 @@ export class UploadHandlerService {
 
             video.src = objectUrl;
         });
-        const exists = this.storageService.loadUpload(this.selectedFile.name)!;
-        if (this.storageService.shouldResume(exists)) {
+        const exists = this.resumeStorageService.loadUpload(this.selectedFile.name)!;
+        if (exists) {
             console.log("Resume Upload Service:", exists)
             this.uploadService.upload(this.selectedFile, this.videoDuration, this.resolution, this.width, this.height);
             alert('📤 Video sent for upload.');
-            return;
-        }else if (!exists.isCompleted && exists.isUploading) {
-            alert("Video Already Uploading");
             return;
         }
     }

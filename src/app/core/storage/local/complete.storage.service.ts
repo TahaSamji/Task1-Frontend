@@ -2,11 +2,8 @@ import { Injectable } from '@angular/core';
 
 interface UploadedFileInfo {
   fileName: string;
-  totalChunks: number,
   size: number,
-  isCompleted: boolean,
-  uploadedChunks: number[]
-  isUploading : boolean ;
+  isComplete : boolean
 }
 
 @Injectable({ providedIn: 'root' })
@@ -17,36 +14,38 @@ export class CompletedStorageService {
     return `${this.prefix}${fileId}`;
   }
 
- shouldResume(info: UploadedFileInfo) {
-  return !info.isCompleted && info.isUploading;
-};
-  updateIsUploadingStatus(fileName : string,status : boolean){
-     const existing = this.loadUpload(fileName);
-      if (existing) {
-      existing.isUploading = status;
-      localStorage.setItem(this.getKey(fileName), JSON.stringify(existing));
-      console.log("Status Updated:",existing);
-    }
-  }
+//  updateIsResumedStatus(fileName : string,status : boolean){
+//      const existing = this.loadUpload(fileName);
+//       if (existing) {
+//       existing.isResumed = status;
+//       localStorage.setItem(this.getKey(fileName), JSON.stringify(existing));
+//       console.log("Status Updated:",existing);
+//     }
+//   }
+  // updateIsUploadingStatus(fileName : string,status : boolean){
+  //    const existing = this.loadUpload(fileName);
+  //     if (existing) {
+  //     existing.isUploading = status;
+  //     localStorage.setItem(this.getKey(fileName), JSON.stringify(existing));
+  //     console.log("Status Updated:",existing);
+  //   }
+  // }
   // Save upload progress
-  saveUpload(fileName: string, totalChunks: number, size: number, isCompleted: boolean, uploadedChunks: number[]): void {
+  saveUpload(fileName: string, size: number,isComplete:boolean): void {
     const data: UploadedFileInfo = {
       fileName,
-      totalChunks,
       size,
-      isCompleted,
-      uploadedChunks,
-      isUploading: false
+      isComplete
+  
     };
     console.log("Upload Saved :",data);
     localStorage.setItem(this.getKey(fileName), JSON.stringify(data));
   }
 
-  updateCompletionStatus(fileName: string, isCompleted: boolean): void {
+  updateCompletionStatus(fileName: string, isComplete: boolean): void {
     const existing = this.loadUpload(fileName);
     if (existing) {
-      existing.isCompleted = isCompleted;
-      existing.isUploading = false;
+      existing.isComplete = isComplete;
       localStorage.setItem(this.getKey(fileName), JSON.stringify(existing));
       console.log("Completion status Update :", existing);
     }
@@ -81,7 +80,7 @@ export class CompletedStorageService {
       const fileId = key.replace('useruploads_', '');
       try {
         const data = JSON.parse(localStorage.getItem(key)!);
-        if (Array.isArray(data?.uploadedChunks) && !data.isCompleted && data.isUploading) {
+        if (Array.isArray(data?.uploadedChunks) && !data.isCompleted && data.isUploading && !data.isResumed) {
           progresses.push({ fileId });
         }
       } catch (e) {
@@ -94,28 +93,28 @@ export class CompletedStorageService {
 }
 
 
-  saveChunk(fileId: string, uploadedChunks: number[]): void {
-    const key = this.getKey(fileId);
-    const raw = localStorage.getItem(key);
+  // saveChunk(fileId: string, uploadedChunks: number[]): void {
+  //   const key = this.getKey(fileId);
+  //   const raw = localStorage.getItem(key);
 
-    let fileInfo: UploadedFileInfo;
+  //   let fileInfo: UploadedFileInfo;
 
-    if (raw) {
-      // Parse existing data
-      fileInfo = JSON.parse(raw) as UploadedFileInfo;
-      // Merge and deduplicate chunks
-      fileInfo.uploadedChunks =uploadedChunks;
-      // Optionally update completion status
-      // fileInfo.isCompleted = fileInfo.uploadedChunks.length >= fileInfo.totalChunks;
-    } else {
-      console.warn(`⚠️ No existing upload info found for fileId: ${fileId}`);
-      return;
-    }
+  //   if (raw) {
+  //     // Parse existing data
+  //     fileInfo = JSON.parse(raw) as UploadedFileInfo;
+  //     // Merge and deduplicate chunks
+  //     fileInfo.uploadedChunks =uploadedChunks;
+  //     // Optionally update completion status
+  //     // fileInfo.isCompleted = fileInfo.uploadedChunks.length >= fileInfo.totalChunks;
+  //   } else {
+  //     console.warn(`⚠️ No existing upload info found for fileId: ${fileId}`);
+  //     return;
+  //   }
 
-    // Save back to localStorage
-    localStorage.setItem(key, JSON.stringify(fileInfo));
-    // console.log(`✅ Updated chunk info saved for fileId: ${fileId}`, fileInfo);
-  }
+  //   // Save back to localStorage
+  //   localStorage.setItem(key, JSON.stringify(fileInfo));
+  //   // console.log(`✅ Updated chunk info saved for fileId: ${fileId}`, fileInfo);
+  // }
 
 
 

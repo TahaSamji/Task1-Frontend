@@ -1,19 +1,20 @@
 // upload.service.ts
 import { Injectable } from '@angular/core';
-import { AzureStorageService } from '../../../core/storage/cloud/azure-storage.service';
-import { StorageService } from '../../../core/storage/local/storage.service';
-import { EncodingStateService } from './encoding-state.service';
-import { UploadProgressStateService } from './progress-state.service';
-import { CompletedStorageService } from '../../../core/storage/local/complete.storage.service';
-import { ResponseStateService } from './response-state.service';
-import { UserService } from '../../../core/services/user.service';
-import { BrowserStateService } from './browser-state.service';
+import { AzureStorageService } from './azure-storage.service';
+import { EncodingStateService } from '../../../features/dashboard/services/encoding-state.service';
+import { UploadProgressStateService } from '../../../features/dashboard/services/progress-state.service';
+import { CompletedStorageService } from '../local/complete.storage.service';
+import { ResponseStateService } from '../../../features/dashboard/services/response-state.service';
+import { UserService } from '../../services/user.service';
+import { BrowserStateService } from '../../../features/dashboard/services/browser-state.service';
+import { ResumeStorageService } from '../local/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class UploadService {
   constructor(
     private cloudStorageService: AzureStorageService,
     private storageService: CompletedStorageService,
+    private resumeStorageService: ResumeStorageService,
     private browserState: BrowserStateService,
     private uploadProgressState: UploadProgressStateService,
     // private completedStorageService: CompletedStorageService,
@@ -26,11 +27,11 @@ export class UploadService {
     const chunkSize = this.cloudStorageService.getChunkSize();
     const totalChunks = Math.ceil(file.size / chunkSize);
     const fileId = `${file.name}`;
-    const uploaded = new Set(this.storageService.loadUploadChunks(fileId));
+    const uploaded = new Set(this.resumeStorageService.loadUploadedChunks(fileId));
     const blockIds: string[] = [];
     const sasUrl = await this.cloudStorageService.getSasUrl(file.name);
     // var upload = this.storageService.loadUpload(fileId);
-    this.storageService.updateIsUploadingStatus(fileId, true);
+    // this.storageService.updateIsUploadingStatus(fileId, true);
     for (let i = 0; i < totalChunks; i++) {
       const blockId = btoa(`block-${String(i).padStart(6, '0')}`);
       blockIds.push(blockId);
@@ -44,7 +45,7 @@ export class UploadService {
       await this.cloudStorageService.uploadBlock(sasUrl, blockId, chunk);
       uploaded.add(i);
 
-      this.storageService.saveChunk(fileId, Array.from(uploaded));
+      this.resumeStorageService.saveChunks(fileId, Array.from(uploaded));
       console.log(`✅ Uploaded chunk ${i + 1}/${totalChunks}`);
 
       const progressPercent = Math.floor((uploaded.size / totalChunks) * 100);
@@ -55,8 +56,8 @@ export class UploadService {
       await this.cloudStorageService.commitBlockList(sasUrl, blockIds);
       console.log('🎉 File uploaded & committed via block list! :');
       this.storageService.updateCompletionStatus(file.name, true);
-      this.storageService.updateIsUploadingStatus(fileId, false);
-
+      // this.storageService.updateIsUploadingStatus(fileId, false);
+      this.resumeStorageService.clear(fileId);
       const browserState = this.browserState.getBrowserType();
       const message = await this.userService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, duration, resolution, file.type, width, height, browserState!);
 
