@@ -29,8 +29,8 @@ export class UploadService {
     const uploaded = new Set(this.storageService.loadUploadChunks(fileId));
     const blockIds: string[] = [];
     const sasUrl = await this.cloudStorageService.getSasUrl(file.name);
-    var upload = this.storageService.loadUpload(fileId);
-     this.storageService.updateIsUploadingStatus(fileId,true);
+    // var upload = this.storageService.loadUpload(fileId);
+    this.storageService.updateIsUploadingStatus(fileId, true);
     for (let i = 0; i < totalChunks; i++) {
       const blockId = btoa(`block-${String(i).padStart(6, '0')}`);
       blockIds.push(blockId);
@@ -55,7 +55,7 @@ export class UploadService {
       await this.cloudStorageService.commitBlockList(sasUrl, blockIds);
       console.log('🎉 File uploaded & committed via block list! :');
       this.storageService.updateCompletionStatus(file.name, true);
-        this.storageService.updateIsUploadingStatus(fileId,false);
+      this.storageService.updateIsUploadingStatus(fileId, false);
 
       const browserState = this.browserState.getBrowserType();
       const message = await this.userService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, duration, resolution, file.type, width, height, browserState!);

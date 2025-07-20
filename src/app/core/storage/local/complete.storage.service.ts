@@ -25,6 +25,7 @@ export class CompletedStorageService {
       if (existing) {
       existing.isUploading = status;
       localStorage.setItem(this.getKey(fileName), JSON.stringify(existing));
+      console.log("Status Updated:",existing);
     }
   }
   // Save upload progress
@@ -37,7 +38,7 @@ export class CompletedStorageService {
       uploadedChunks,
       isUploading: false
     };
-    console.log(data);
+    console.log("Upload Saved :",data);
     localStorage.setItem(this.getKey(fileName), JSON.stringify(data));
   }
 
@@ -47,13 +48,14 @@ export class CompletedStorageService {
       existing.isCompleted = isCompleted;
       existing.isUploading = false;
       localStorage.setItem(this.getKey(fileName), JSON.stringify(existing));
+      console.log("Completion status Update :", existing);
     }
   }
 
   // Load a specific upload
   loadUpload(fileName: string): UploadedFileInfo | null {
     const raw = localStorage.getItem(this.getKey(fileName));
-    console.log(raw);
+    console.log("Upload Loaded:",raw);
     try {
       return raw ? JSON.parse(raw) as UploadedFileInfo : null;
     } catch {
@@ -112,7 +114,7 @@ export class CompletedStorageService {
 
     // Save back to localStorage
     localStorage.setItem(key, JSON.stringify(fileInfo));
-    console.log(`✅ Updated chunk info saved for fileId: ${fileId}`, fileInfo);
+    // console.log(`✅ Updated chunk info saved for fileId: ${fileId}`, fileInfo);
   }
 
 

@@ -17,9 +17,9 @@ export class RenditionService {
         this._thumbnailUrl$.next(thumbnail);
 
     }
-    setVideoPlayBackUrl(url: string,type:string) {
+    setVideoPlayBackUrl(url: string, type: string) {
         this._videoPlaybackUrl$.next(url);
-        console.log("Service:",type)
+        console.log("Service:", type)
         this._videoFormatType$.next(type);
     }
 
@@ -33,7 +33,7 @@ export class RenditionService {
         return this._videoPlaybackUrl$.asObservable();
     }
     getVideoFormatTypeObservable() {
-  return this._videoFormatType$.asObservable();
-}
+        return this._videoFormatType$.asObservable();
+    }
 
 }

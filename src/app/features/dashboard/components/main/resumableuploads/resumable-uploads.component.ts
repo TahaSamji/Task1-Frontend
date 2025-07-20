@@ -41,7 +41,7 @@ export class ResumableUploadsComponent implements OnInit {
   }
 
   async resumeUpload(): Promise<void> {
-    await this.uploadHandler.handleUpload();
+    await this.uploadHandler.handleResumeUpload();
   }
 
   clearProgress(fileId: string): void {

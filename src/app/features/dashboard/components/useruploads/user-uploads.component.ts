@@ -64,6 +64,11 @@ export class UserUploadsComponent implements OnInit {
         this.userService.getVideoVariants(upload.id).subscribe({
             next: (renditions) => {
                 console.log('Renditions:', renditions);
+                if (renditions.length == 0 || !renditions) {
+                    alert("Please Wait for Video to Be Available");
+                    this.renditionService.setRenditions([], "");
+                    return;
+                }
                 this.renditionService.setRenditions(renditions, upload.defaultThumbnailUrl);
                 const target = document.getElementById('video-container');
                 if (target) {
@@ -73,8 +78,6 @@ export class UserUploadsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Failed to load renditions:', err);
-                alert("Please Wait for Video to Be Available");
-                this.renditionService.setRenditions([], "");
             }
         });
     }

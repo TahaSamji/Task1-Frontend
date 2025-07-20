@@ -40,16 +40,21 @@ export class UploadHandlerService {
 
         // ✅ Prevent re-upload
         const exists = this.storageService.loadUpload(this.selectedFile.name);
+        console.log("Handle Upload Service:", exists)
         if (exists) {
-            if (exists.isCompleted && !exists.isUploading) {
+            if (exists.isCompleted) {
+                console.log("Handle Upload Service:", exists)
                 alert('Video already uploaded.');
                 return;
-            }  if (this.storageService.shouldResume(exists)) {
-                this.uploadService.upload(this.selectedFile, this.videoDuration, this.resolution, this.width, this.height);
-                alert('📤 Video sent for upload.');
+            } else if (!exists.isCompleted && !exists.isUploading) {
+                console.log("Handle Upload Service:", exists)
+                alert('Video already uploaded. Please Wait!');
                 return;
             }
-
+            else {
+                alert('Video already uploading.');
+                return;
+            }
 
         }
 
@@ -83,5 +88,44 @@ export class UploadHandlerService {
         // Trigger upload
         this.uploadService.upload(this.selectedFile, this.videoDuration, this.resolution, this.width, this.height);
         alert('📤 Video sent for upload.');
+    }
+
+    async handleResumeUpload(): Promise<void> {
+        if (!this.selectedFile) {
+            alert('Please select a video first.');
+            return;
+        }
+          const video = document.createElement('video');
+        video.preload = 'metadata';
+
+        const objectUrl = URL.createObjectURL(this.selectedFile);
+
+        await new Promise<void>((resolve, reject) => {
+            video.onloadedmetadata = () => {
+                this.width = video.videoWidth;
+                this.height = video.videoHeight;
+                this.videoDuration = Math.round(video.duration);
+                this.resolution = `${this.width}x${this.height}`;
+                URL.revokeObjectURL(objectUrl);
+                resolve();
+            };
+
+            video.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                reject(new Error('Failed to load video metadata.'));
+            };
+
+            video.src = objectUrl;
+        });
+        const exists = this.storageService.loadUpload(this.selectedFile.name)!;
+        if (this.storageService.shouldResume(exists)) {
+            console.log("Resume Upload Service:", exists)
+            this.uploadService.upload(this.selectedFile, this.videoDuration, this.resolution, this.width, this.height);
+            alert('📤 Video sent for upload.');
+            return;
+        }else if (!exists.isCompleted && exists.isUploading) {
+            alert("Video Already Uploading");
+            return;
+        }
     }
 }
