@@ -29,7 +29,7 @@
     </div>
   </section>
 
-  <section id="encoding-section" class="upload-section">
+  <section   *hasRole="'Admin'" id="encoding-section" class="upload-section">
     <!-- Flex row: Upload + Table side by side -->
     <div class="upload-row">
       <!-- <div class="upload-container">
@@ -38,7 +38,7 @@
         <button (click)="onUpload()">Upload</button>
       </div> -->
 
-      <div class="encoding-container">
+      <div   class="encoding-container">
         <app-encoding-table></app-encoding-table>
       </div>
     </div>

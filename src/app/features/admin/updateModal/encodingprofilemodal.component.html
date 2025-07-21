@@ -14,14 +14,8 @@
         </div>
         <div class="form-group">
           <label for="profileName">Profile Name</label>
-          <input 
-            type="text" 
-            id="profileName" 
-            formControlName="name"
-            placeholder="e.g., 4K Ultra HD, Mobile Optimized"
-            class="form-control"
-          
-          />
+          <input type="text" id="profileName" formControlName="name" placeholder="e.g., 4K Ultra HD, Mobile Optimized"
+            class="form-control" />
           <div class="error-message" *ngIf="encodingForm.get('name')?.invalid && encodingForm.get('name')?.touched">
             Profile name is required
           </div>
@@ -33,7 +27,7 @@
         <div class="section-header">
           <h3>Video Configuration</h3>
         </div>
-        
+
         <div class="form-row">
           <div class="form-group">
             <label for="resolution">Resolution</label>
@@ -52,14 +46,8 @@
 
           <div class="form-group" *ngIf="encodingForm.get('resolution')?.value === 'custom'">
             <label for="customResolution">Custom Resolution</label>
-            <input 
-              type="text" 
-              id="customResolution" 
-              formControlName="customResolution"
-              placeholder=""
-              class="form-control"
-            
-            />
+            <input type="text" id="customResolution" formControlName="customResolution" placeholder=""
+              class="form-control" />
           </div>
         </div>
 
@@ -82,13 +70,8 @@
 
           <div class="form-group" *ngIf="encodingForm.get('bitrate')?.value === 'custom'">
             <label for="customBitrate">Custom Bitrate</label>
-            <input 
-              type="text" 
-              id="customBitrate" 
-              formControlName="customBitrate"
-              placeholder="e.g., 3500k"
-              class="form-control"
-            />
+            <input type="text" id="customBitrate" formControlName="customBitrate" placeholder="e.g., 3500k"
+              class="form-control" />
           </div>
         </div>
 
@@ -100,7 +83,7 @@
             <option value="dash">MPEG-DASH</option>
           </select>
         </div>
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label for="browserType">Browser Type</label>
           <select id="browserType" formControlName="browserType" class="form-control">
             <option value="Chrome">Chrome</option>
@@ -110,6 +93,19 @@
             <option value="Opera">Opera</option>
             <option value="Unknown">Unknown</option>
           </select>
+        </div> -->
+
+        <div class="checkbox-group">
+          <!-- <label class="checkbox-label">
+              <input type="checkbox" formControlName="enableDRM">
+              <span class="checkmark"></span>
+              Enable CENC Encryption
+            </label> -->
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="isAdminSelected">
+            <span class="checkmark"></span>
+            Make this Active
+          </label>
         </div>
       </div>
 
@@ -149,15 +145,7 @@
           <div class="form-row">
             <div class="form-group">
               <label for="crf">Quality (CRF)</label>
-              <input 
-                type="range" 
-                id="crf" 
-                formControlName="crf"
-                min="0" 
-                max="51" 
-                step="1"
-                class="range-slider"
-              />
+              <input type="range" id="crf" formControlName="crf" min="0" max="51" step="1" class="range-slider" />
               <span class="range-value">{{ encodingForm.get('crf')?.value }}</span>
               <small class="help-text">Lower values = higher quality (18-28 recommended)</small>
             </div>
@@ -177,29 +165,15 @@
             </div>
           </div>
 
-          <!-- <div class="checkbox-group">
-            <label class="checkbox-label">
-              <input type="checkbox" formControlName="enableDRM">
-              <span class="checkmark"></span>
-              Enable CENC Encryption
-            </label>
-            <label class="checkbox-label">
-              <input type="checkbox" formControlName="generateThumbnails">
-              <span class="checkmark"></span>
-              Generate Thumbnails
-            </label>
-          </div> -->
+
 
           <div class="form-group">
             <label for="customFFmpegArgs">Custom FFmpeg Arguments</label>
-            <textarea 
-              id="customFFmpegArgs" 
-              formControlName="customFFmpegArgs"
+            <textarea id="customFFmpegArgs" formControlName="customFFmpegArgs"
               placeholder="Additional FFmpeg arguments (e.g., -movflags +faststart -profile:v main)"
-              class="form-control textarea"
-              rows="3"
-            ></textarea>
-            <small class="help-text">Advanced users only. These arguments will be appended to the generated command.</small>
+              class="form-control textarea" rows="3"></textarea>
+            <small class="help-text">Advanced users only. These arguments will be appended to the generated
+              command.</small>
           </div>
         </div>
       </div>

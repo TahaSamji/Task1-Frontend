@@ -58,8 +58,8 @@ export class UploadService {
       this.storageService.updateCompletionStatus(file.name, true);
       // this.storageService.updateIsUploadingStatus(fileId, false);
       this.resumeStorageService.clear(fileId);
-      const browserState = this.browserState.getBrowserType();
-      const message = await this.userService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, duration, resolution, file.type, width, height, browserState!);
+      // const browserState = this.browserState.getBrowserType();
+      const message = await this.userService.mergeCompleteAndRequestThumbnail(totalChunks, file.name, file.size, duration, resolution, file.type, width, height);
 
       alert(message);
       this.responseStateService.setResponseState(message);

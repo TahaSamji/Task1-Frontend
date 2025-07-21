@@ -6,5 +6,5 @@ export interface EncodingProfile {
   bitrate: string;
   format_type: string;
   created_at?: string;
-  browser_type : string;
+  isAdminSelected :boolean;
 }

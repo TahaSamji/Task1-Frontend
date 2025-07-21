@@ -59,8 +59,8 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
 
     this.encodingService.deleteEncodingProfile(id).subscribe({
       next: () => {
-          this.fetchEncodings(); 
-                this.cdRef.detectChanges();
+        this.fetchEncodings();
+        this.cdRef.detectChanges();
 
         console.log(`✅ Encoding profile deleted: ID ${id}`);
         // Remove the deleted profile from the local list
@@ -80,6 +80,20 @@ export class EncodingTableComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  onCheckboxChange(event: Event, profileId: number): void {
+    const checkbox = event.target as HTMLInputElement;
+    console.log('Checked:', checkbox.checked, profileId);
+    this.encodingService.updateAdminSelection(profileId, checkbox.checked).subscribe({
+    next: res => {
+      console.log('✔️ Updated:', res.message);
+      this.cdRef.detectChanges();
+    },
+    error: err => {
+      console.error('❌ Error updating selection:', err);
+      // Revert to original state on error
+    }
+  });
+  }
   /**
    * Fetch encoding profiles from the service
    */

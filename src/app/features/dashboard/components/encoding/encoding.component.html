@@ -1,11 +1,8 @@
-
-<app-updateencoding-profile-modal *ngIf="showModal" 
-[selectedProfile]="selectedProfile"
-  (modalClosed)="onModalClosed()"
+<app-updateencoding-profile-modal *ngIf="showModal" [selectedProfile]="selectedProfile" (modalClosed)="onModalClosed()"
   (profileCreated)="onProfileCreated($event)">
 </app-updateencoding-profile-modal>
 
-<div class="encoding-table-container">
+<div  class="encoding-table-container">
   <h2>Encoding Profiles</h2>
 
   <div *ngIf="loading" class="loading">
@@ -17,6 +14,11 @@
     <table>
       <thead>
         <tr>
+             <th>
+            <div *hasRole="'Admin'" class="header-content">
+              <span>isAdminSelected</span>
+            </div>
+          </th>
           <th>
             <div class="header-content">
               <span>Name</span>
@@ -39,7 +41,7 @@
           </th>
           <th>
             <div class="header-content">
-              <span>Select</span>
+              <span>Edit</span>
             </div>
           </th>
 
@@ -52,6 +54,16 @@
         <tr *ngFor="let profile of encodings; let i = index" class="table-row"
           [style.animation-delay]="(i * 100) + 'ms'">
           <td>
+            <div  *hasRole="'Admin'" class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [checked]="profile.isAdminSelected" (change)="onCheckboxChange($event,profile.id!)">
+                <span class="checkmark"></span>
+              </label>
+            </div>
+          </td>
+          <td>
+
+
             <div class="cell-content">
               <span class="profile-name">{{ profile.name }}</span>
             </div>
@@ -75,9 +87,11 @@
             <button *hasRole="'Admin'" class="custom-encoding-button" (click)="openModal(profile)">
               ✏️
             </button>
-              <button *hasRole="'Admin'" class="custom-encoding-button" (click)="onDelete(profile?.id!)">
-                🗑️
+            <button *hasRole="'Admin'" class="custom-encoding-button" (click)="onDelete(profile?.id!)">
+              🗑️
             </button>
+
+
           </td>
         </tr>
       </tbody>

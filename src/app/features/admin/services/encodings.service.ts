@@ -54,5 +54,12 @@ export class EncodingService {
     responseType: 'text' as 'json' // tell Angular to treat text as JSON
   });
 }
+updateAdminSelection(profileId: number, isSelected: boolean): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.get<any>(
+    `${this.baseUrl}/encodingprofile/updateAdminSelection?profileId=${profileId}&isSelected=${isSelected}`,
+    { headers }
+  );
+}
 
 }

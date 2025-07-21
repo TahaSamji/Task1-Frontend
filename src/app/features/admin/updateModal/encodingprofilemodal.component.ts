@@ -55,7 +55,8 @@ export class UpdateEncodingProfileModalComponent implements OnInit {
       enableHardwareAccel: [false],
       enableDRM: [false],
       generateThumbnails: [true],
-      customFFmpegArgs: ['']
+      customFFmpegArgs: [''],
+      isAdminSelected: [false]
     });
   }
 
@@ -98,7 +99,8 @@ export class UpdateEncodingProfileModalComponent implements OnInit {
       customBitrate: profile.bitrate || '',  // ← Always populate this
       formatType: profile.format_type || '',
       customFFmpegArgs: '',
-      browserType :profile.browser_type
+      // browserType :profile.browser_type ,
+      isAdminSelected : profile.isAdminSelected || false
     });
   }
 
@@ -184,8 +186,10 @@ export class UpdateEncodingProfileModalComponent implements OnInit {
         format_type: formValue.formatType,
         ffmpeg_args: this.generateFFmpegArgs(),
         created_at: new Date().toISOString(),
-        browser_type : formValue.browserType
+        // browser_type : formValue.browserType,
+        isAdminSelected : formValue.isAdminSelected
       };
+
 
       if (!encodingProfile.id) {
         console.error('❌ Cannot update: Missing encoding profile ID.');

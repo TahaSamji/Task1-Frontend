@@ -8,8 +8,8 @@ import { EncodingProfile } from '../../../core/models/encoding-profile.model';
 
 @Component({
   selector: 'app-encoding-profile-modal',
-  standalone: true, 
-  imports : [ReactiveFormsModule,CommonModule],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './encodingprofilemodal.component.html',
   styleUrls: ['./encodingprofilemodal.component.css']
 })
@@ -20,7 +20,7 @@ export class EncodingProfileModalComponent implements OnInit {
   encodingForm: FormGroup;
   showAdvanced: boolean = false;
 
-  constructor(private fb: FormBuilder,private encodingService: EncodingService) {
+  constructor(private fb: FormBuilder, private encodingService: EncodingService) {
     this.encodingForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       resolution: ['', Validators.required],
@@ -32,11 +32,14 @@ export class EncodingProfileModalComponent implements OnInit {
       codec: ['libx264'],
       crf: [23],
       framerate: ['30'],
-      browserType : [''],
+      browserType: [''],
       enableHardwareAccel: [false],
       enableDRM: [false],
       generateThumbnails: [true],
-      customFFmpegArgs: ['']
+      customFFmpegArgs: [''],
+      isAdminSelected: [false]
+
+
     });
   }
 
@@ -73,98 +76,99 @@ export class EncodingProfileModalComponent implements OnInit {
 
 
   private generateFFmpegArgs(): string {
-  const formValue = this.encodingForm.value;
-  const args: string[] = [];
+    const formValue = this.encodingForm.value;
+    const args: string[] = [];
 
-  // Codec & resolution
-  args.push(`-c:v ${formValue.codec}`);
-  const resolution = formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution;
-  if (resolution) args.push(`-s ${resolution}`);
+    // Codec & resolution
+    args.push(`-c:v ${formValue.codec}`);
+    const resolution = formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution;
+    if (resolution) args.push(`-s ${resolution}`);
 
-  // Bitrate
-  const bitrate = formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate;
-  if (bitrate) args.push(`-b:v ${bitrate}`);
+    // Bitrate
+    const bitrate = formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate;
+    if (bitrate) args.push(`-b:v ${bitrate}`);
 
-  // CRF, preset, framerate
-  args.push(`-crf ${formValue.crf}`);
-  args.push(`-preset ${formValue.preset}`);
-  args.push(`-r ${formValue.framerate}`);
+    // CRF, preset, framerate
+    args.push(`-crf ${formValue.crf}`);
+    args.push(`-preset ${formValue.preset}`);
+    args.push(`-r ${formValue.framerate}`);
 
-  // GOP settings for consistent segmenting (CMAF requirement)
-  const fps = parseFloat(formValue.framerate);
-  const gop = Math.round(fps * 4); // 4s segment duration
-  args.push(`-g ${gop}`);
-  args.push(`-keyint_min ${gop}`);
-  args.push(`-sc_threshold 0`);
+    // GOP settings for consistent segmenting (CMAF requirement)
+    const fps = parseFloat(formValue.framerate);
+    const gop = Math.round(fps * 4); // 4s segment duration
+    args.push(`-g ${gop}`);
+    args.push(`-keyint_min ${gop}`);
+    args.push(`-sc_threshold 0`);
 
-  // Hardware Acceleration
-  if (formValue.enableHardwareAccel) {
-    args.push('-hwaccel auto');
+    // Hardware Acceleration
+    if (formValue.enableHardwareAccel) {
+      args.push('-hwaccel auto');
+    }
+
+    // Audio
+    args.push('-c:a aac');
+    args.push('-b:a 128k');
+
+    // Format-specific CMAF output
+    if (formValue.formatType === 'hls') {
+      args.push('-f hls');
+      args.push('-hls_time 4');
+      args.push('-hls_segment_type fmp4');
+      args.push('-hls_playlist_type vod');
+    } else if (formValue.formatType === 'dash') {
+      args.push('-f dash');
+      args.push('-seg_duration 4');
+      args.push('-use_template 1 -use_timeline 1');
+      args.push('-init_seg_name init-$RepresentationID$.mp4');
+      args.push('-media_seg_name chunk-$RepresentationID$-$Number$.m4s');
+      args.push('-adaptation_sets "id=0,streams=v id=1,streams=a"');
+    }
+
+
+
+    // Custom args
+    if (formValue.customFFmpegArgs?.trim()) {
+      args.push(formValue.customFFmpegArgs.trim());
+    }
+
+    return args.join(' ');
   }
-
-  // Audio
-  args.push('-c:a aac');
-  args.push('-b:a 128k');
-
-  // Format-specific CMAF output
-  if (formValue.formatType === 'hls') {
-    args.push('-f hls');
-    args.push('-hls_time 4');
-    args.push('-hls_segment_type fmp4');
-    args.push('-hls_playlist_type vod');
-  } else if (formValue.formatType === 'dash') {
-    args.push('-f dash');
-    args.push('-seg_duration 4');
-    args.push('-use_template 1 -use_timeline 1');
-    args.push('-init_seg_name init-$RepresentationID$.mp4');
-    args.push('-media_seg_name chunk-$RepresentationID$-$Number$.m4s');
-    args.push('-adaptation_sets "id=0,streams=v id=1,streams=a"');
-  }
-
-  
-
-  // Custom args
-  if (formValue.customFFmpegArgs?.trim()) {
-    args.push(formValue.customFFmpegArgs.trim());
-  }
-
-  return args.join(' ');
-}
 
 
 
   onSubmit(): void {
-  if (this.encodingForm.valid) {
-    const formValue = this.encodingForm.value;
+    if (this.encodingForm.valid) {
+      const formValue = this.encodingForm.value;
 
-    const encodingProfile: EncodingProfile = {
-      name: formValue.name,
-      resolution: formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution,
-      bitrate: formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate,
-      format_type: formValue.formatType,
-      ffmpeg_args: this.generateFFmpegArgs(),
-      created_at: new Date().toISOString(),
-      browser_type : formValue.browserType
-      
-    };
+      const encodingProfile: EncodingProfile = {
+        name: formValue.name,
+        resolution: formValue.resolution === 'custom' ? formValue.customResolution : formValue.resolution,
+        bitrate: formValue.bitrate === 'custom' ? formValue.customBitrate : formValue.bitrate,
+        format_type: formValue.formatType,
+        ffmpeg_args: this.generateFFmpegArgs(),
+        created_at: new Date().toISOString(),
+        // browser_type: formValue.browserType,
+        isAdminSelected: formValue.isAdminSelected
 
-    // Send to backend
-    this.encodingService.addEncodingProfile(encodingProfile).subscribe({
-      next: (response) => {
-        console.log('Encoding profile successfully saved:', response);
-        this.profileCreated.emit(response);
-        this.closeModal();
-      },
-      error: (error) => {
-        console.error('Failed to save encoding profile:', error);
-      }
-    });
-  } else {
-    Object.keys(this.encodingForm.controls).forEach(key => {
-      this.encodingForm.get(key)?.markAsTouched();
-    });
+      };
+
+      // Send to backend
+      this.encodingService.addEncodingProfile(encodingProfile).subscribe({
+        next: (response) => {
+          console.log('Encoding profile successfully saved:', response);
+          this.profileCreated.emit(response);
+          this.closeModal();
+        },
+        error: (error) => {
+          console.error('Failed to save encoding profile:', error);
+        }
+      });
+    } else {
+      Object.keys(this.encodingForm.controls).forEach(key => {
+        this.encodingForm.get(key)?.markAsTouched();
+      });
+    }
   }
-}
 
 
   // Helper method to get form control errors

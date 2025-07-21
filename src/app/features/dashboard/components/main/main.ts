@@ -9,6 +9,7 @@ import { ResumableUploadsComponent } from './resumableuploads/resumable-uploads.
 import { UploadHandlerService } from '../../services/upload-handler.service';
 import { EncodingTableComponent } from "../encoding/encoding.component";
 import { BrowserStateService } from '../../services/browser-state.service';
+import { HasRoleDirective } from '../../../../shared/directives/has-role';
 
 @Component({
   selector: 'app-upload',
@@ -16,7 +17,7 @@ import { BrowserStateService } from '../../services/browser-state.service';
   templateUrl: './main_component.html',
   styleUrls: ['./main_component.css'],
   imports: [
-    RouterModule, AppbarComponent, CommonModule, VideoPlayerComponent, UserUploadsComponent, ResumableUploadsComponent, UploadProgressComponent,
+    RouterModule, AppbarComponent, CommonModule, VideoPlayerComponent, UserUploadsComponent, ResumableUploadsComponent, UploadProgressComponent,HasRoleDirective,
     EncodingTableComponent
 ]
 })
@@ -33,28 +34,28 @@ export class UploadComponent implements OnInit {
 
  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
- getBrowserName(): string {
-  const userAgent = navigator.userAgent;
+//  getBrowserName(): string {
+//   const userAgent = navigator.userAgent;
 
-  if (userAgent.includes('Firefox')) {
-    return 'Firefox';
-  } else if (userAgent.includes('Edg')) {
-    return 'Edge';
-  } else if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
-    return 'Chrome';
-  } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-    return 'Safari';
-  } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) {
-    return 'Opera';
-  } else {
-    return 'Unknown';
-  }
-}
+//   if (userAgent.includes('Firefox')) {
+//     return 'Firefox';
+//   } else if (userAgent.includes('Edg')) {
+//     return 'Edge';
+//   } else if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
+//     return 'Chrome';
+//   } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+//     return 'Safari';
+//   } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) {
+//     return 'Opera';
+//   } else {
+//     return 'Unknown';
+//   }
+// }
 
   ngOnInit(): void {
-    const browserName = this.getBrowserName();
-    this.browserState.setBrowserType(browserName);
-    console.log(`Detected Browser: ${browserName}`);
+    // const browserName = this.getBrowserName();
+    // this.browserState.setBrowserType(browserName);
+    // console.log(`Detected Browser: ${browserName}`);
   }
 
 async onFileSelected(event: Event): Promise<void> {
@@ -64,4 +65,5 @@ async onFileSelected(event: Event): Promise<void> {
 async onUpload(): Promise<void> {
   await this.uploadHandler.handleUpload();
 }
+
 }
